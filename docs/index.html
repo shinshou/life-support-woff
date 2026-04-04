@@ -101,6 +101,7 @@
   <header class="header">
     <button class="header-back-btn" id="btn-back-task-list" aria-label="戻る">‹</button>
     <span class="header-title" id="task-list-title"></span>
+    <button class="header-action-btn" id="btn-add-default-tasks" aria-label="デフォルトから追加">＋D</button>
   </header>
 
   <div class="filter-tabs">
@@ -180,6 +181,31 @@
 </div>
 
 <!-- ==============================
+  P07: デフォルトタスクから追加
+=============================== -->
+<div id="page-task-from-default" class="page">
+  <header class="header">
+    <button class="header-back-btn" id="btn-back-task-from-default" aria-label="戻る">‹</button>
+    <span class="header-title">デフォルトから追加</span>
+  </header>
+  <div class="container">
+    <div class="form-group">
+      <label class="form-label" for="input-default-start-date">
+        開始日<span class="required">*</span>
+      </label>
+      <input class="form-input" type="date" id="input-default-start-date">
+    </div>
+    <div class="form-group">
+      <div class="form-label">追加するタスクを選択</div>
+      <button type="button" class="check-select-all" id="btn-select-all-default">すべて選択</button>
+      <div id="default-task-select-list"></div>
+    </div>
+    <p id="task-from-default-error" class="error-msg" style="display:none;"></p>
+    <button type="button" class="btn btn-primary" id="btn-submit-default-tasks">追加する</button>
+  </div>
+</div>
+
+<!-- ==============================
   P06: プロジェクト ルーム管理
 =============================== -->
 <div id="page-project-room" class="page">
@@ -210,6 +236,7 @@
 <script src="js/views/ProjectCreateView.js"></script>
 <script src="js/views/TaskListView.js"></script>
 <script src="js/views/TaskEditView.js"></script>
+<script src="js/views/TaskFromDefaultView.js"></script>
 <script src="js/views/ProjectRoomView.js"></script>
 <script src="js/app.js"></script>
 <script src="js/config.js"></script>
@@ -220,6 +247,7 @@
   App.registerView('project-create', ProjectCreateView);
   App.registerView('task-list',      TaskListView);
   App.registerView('task-edit',      TaskEditView);
+  App.registerView('task-from-default', TaskFromDefaultView);
   App.registerView('project-room',   ProjectRoomView);
 
   // ===== 起動 =====

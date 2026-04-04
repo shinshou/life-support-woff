@@ -24,6 +24,17 @@ var TaskListView = (function () {
     var title = document.getElementById('task-list-title');
     if (title) title.textContent = _project.project_name;
 
+    var defaultBtn = document.getElementById('btn-add-default-tasks');
+    if (defaultBtn) {
+      defaultBtn.onclick = function () {
+        Api.get('getDefaultTasks', {}).then(function (defaultTasks) {
+          App.navigate('task-from-default', { project: _project, defaultTasks: defaultTasks || [] });
+        }).catch(function (err) {
+          alert('デフォルトタスク取得に失敗しました: ' + err.message);
+        });
+      };
+    }
+
     var backBtn = document.getElementById('btn-back-task-list');
     if (backBtn) {
       backBtn.onclick = function () {
