@@ -34,10 +34,17 @@ var SpreadsheetUtil = (function () {
     var data = sheet.getDataRange().getValues();
     if (data.length <= 1) return [];
     var headers = data[0];
+    var tz = Session.getScriptTimeZone();
     return data.slice(1).map(function (row, i) {
       var obj = { _rowIndex: i + 2 };
       headers.forEach(function (h, j) {
-        obj[h] = row[j];
+        var v = row[j];
+        // Date オブジェクトはスクリプトのタイムゾーンで YYYY-MM-DD に変換
+        if (v instanceof Date && !isNaN(v.getTime())) {
+          obj[h] = Utilities.formatDate(v, tz, 'yyyy-MM-dd');
+        } else {
+          obj[h] = v;
+        }
       });
       return obj;
     });
