@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>タスク管理</title>
-  <?!= HtmlService.createHtmlOutputFromFile('frontend/css/style').getContent(); ?>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -176,13 +176,13 @@
   スクリプト読み込み
 =============================== -->
 <script charset="utf-8" src="https://static.worksmobile.net/static/wm/woff/edge/3.7.1/sdk.js"></script>
-<?!= HtmlService.createHtmlOutputFromFile('frontend/js/woff').getContent(); ?>
-<?!= HtmlService.createHtmlOutputFromFile('frontend/js/api').getContent(); ?>
-<?!= HtmlService.createHtmlOutputFromFile('frontend/js/views/ProjectListView').getContent(); ?>
-<?!= HtmlService.createHtmlOutputFromFile('frontend/js/views/ProjectCreateView').getContent(); ?>
-<?!= HtmlService.createHtmlOutputFromFile('frontend/js/views/TaskListView').getContent(); ?>
-<?!= HtmlService.createHtmlOutputFromFile('frontend/js/views/TaskEditView').getContent(); ?>
-<?!= HtmlService.createHtmlOutputFromFile('frontend/js/app').getContent(); ?>
+<script src="js/woff.js"></script>
+<script src="js/api.js"></script>
+<script src="js/views/ProjectListView.js"></script>
+<script src="js/views/ProjectCreateView.js"></script>
+<script src="js/views/TaskListView.js"></script>
+<script src="js/views/TaskEditView.js"></script>
+<script src="js/app.js"></script>
 
 <script>
   // ===== 設定 =====
@@ -196,17 +196,7 @@
   App.registerView('task-edit',      TaskEditView);
 
   // ===== 起動 =====
-  Api.setUrl(GAS_URL);
-  // URLとhashをログに記録（デバッグ用）
-  fetch(GAS_URL + '?action=writeLog&msg=' + encodeURIComponent(location.href) + '&ctx=' + encodeURIComponent(location.hash));
-  if (typeof woff === 'undefined') {
-    document.getElementById('init-error').textContent = 'WOFF SDKの読み込みに失敗しました。LINE WORKSアプリから開いてください。';
-    document.getElementById('init-error').style.display = 'block';
-    document.getElementById('init-spinner').style.display = 'none';
-    fetch(GAS_URL + '?action=writeLog&msg=' + encodeURIComponent('WOFF SDK undefined') + '&ctx=index');
-  } else {
-    App.start(WOFF_ID, GAS_URL);
-  }
+  App.start(WOFF_ID, GAS_URL);
 </script>
 
 </body>

@@ -1,4 +1,3 @@
-<script>
 /**
  * woff.js
  * WOFF SDK ラッパー・認証
@@ -79,4 +78,3 @@ var WoffClient = (function () {
     close: close
   };
 })();
-</script>

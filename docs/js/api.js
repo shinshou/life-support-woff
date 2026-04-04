@@ -1,4 +1,3 @@
-<script>
 /**
  * api.js
  * GAS Web App API クライアント
@@ -61,4 +60,3 @@ var Api = (function () {
     post: post
   };
 })();
-</script>

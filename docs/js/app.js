@@ -1,4 +1,3 @@
-<script>
 /**
  * app.js
  * アプリ初期化・SPA画面遷移管理
@@ -128,4 +127,3 @@ var App = (function () {
     setCanCreate: setCanCreate
   };
 })();
-</script>

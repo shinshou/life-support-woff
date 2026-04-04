@@ -1,4 +1,3 @@
-<script>
 /**
  * TaskListView.js
  * P04 タスク一覧
@@ -159,4 +158,3 @@ var TaskListView = (function () {
 
   return { mount: mount };
 })();
-</script>

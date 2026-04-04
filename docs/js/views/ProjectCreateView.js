@@ -1,4 +1,3 @@
-<script>
 /**
  * ProjectCreateView.js
  * P03 プロジェクト作成
@@ -155,4 +154,3 @@ var ProjectCreateView = (function () {
 
   return { mount: mount };
 })();
-</script>

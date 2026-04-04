@@ -1,4 +1,3 @@
-<script>
 /**
  * ProjectListView.js
  * P02 プロジェクト一覧
@@ -111,4 +110,3 @@ var ProjectListView = (function () {
 
   return { mount: mount };
 })();
-</script>

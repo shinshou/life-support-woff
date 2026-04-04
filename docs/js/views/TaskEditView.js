@@ -1,4 +1,3 @@
-<script>
 /**
  * TaskEditView.js
  * P05 タスク編集（新規・更新 兼用）
@@ -136,4 +135,3 @@ var TaskEditView = (function () {
 
   return { mount: mount };
 })();
-</script>
