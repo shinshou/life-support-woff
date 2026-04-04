@@ -86,6 +86,17 @@ var TaskModel = (function () {
   }
 
   /**
+   * 本日開始タスク取得
+   * @param {string} today YYYY-MM-DD
+   * @returns {Object[]}
+   */
+  function getTasksStartingToday(today) {
+    return getAll().filter(function (t) {
+      return t.start_date && t.status !== '完了' && String(t.start_date) === today;
+    });
+  }
+
+  /**
    * N日以内に期限が来るタスク取得（当日は除く）
    * @param {string} today YYYY-MM-DD
    * @param {number} days
@@ -109,6 +120,7 @@ var TaskModel = (function () {
     deleteByProjectId: deleteByProjectId,
     getOverdueTasks: getOverdueTasks,
     getTasksDueToday: getTasksDueToday,
-    getTasksDueSoon: getTasksDueSoon
+    getTasksDueSoon: getTasksDueSoon,
+    getTasksStartingToday: getTasksStartingToday
   };
 })();

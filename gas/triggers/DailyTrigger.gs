@@ -13,9 +13,17 @@
 function runDailyNotification() {
   var today = DateUtil.getToday();
 
+  _checkStartTodayTasks(today);
   _checkOverdueTasks(today);
   _checkDueTodayTasks(today);
   _checkDueSoonTasks(today, 3);
+}
+
+function _checkStartTodayTasks(today) {
+  var tasks = TaskModel.getTasksStartingToday(today);
+  tasks.forEach(function (task) {
+    NotificationService.sendStartToday(task);
+  });
 }
 
 function _checkOverdueTasks(today) {

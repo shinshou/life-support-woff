@@ -106,6 +106,14 @@ var NotificationService = (function () {
     });
   }
 
+  function sendStartToday(task) {
+    var project = ProjectModel.getById(task.project_id);
+    var projectName = project ? project.project_name : task.project_id;
+    _notifyProjectRooms(task,
+      '[本日開始] ' + task.task_name + '（' + projectName + '）\n担当: ' + (task.assignee || '未設定')
+    );
+  }
+
   function sendTaskComplete(task) {
     var project = ProjectModel.getById(task.project_id);
     var projectName = project ? project.project_name : task.project_id;
@@ -136,6 +144,7 @@ var NotificationService = (function () {
   }
 
   return {
+    sendStartToday: sendStartToday,
     sendTaskComplete: sendTaskComplete,
     sendDueToday: sendDueToday,
     sendDueSoon: sendDueSoon,
