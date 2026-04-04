@@ -107,7 +107,6 @@ var Router = (function () {
 
         case 'createDefaultTasks':
           AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);
-          AuthService.requireCreatePermission(ctx.userId);
           TaskService.createDefaultTasks(ctx.projectId, ctx.start_date, ctx.defaultTaskIds);
           return ResponseUtil.success(null);
 
@@ -198,7 +197,6 @@ var Router = (function () {
 
         case 'createDefaultTasks':
           AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);
-          AuthService.requireCreatePermission(ctx.userId);
           TaskService.createDefaultTasks(ctx.projectId, ctx.start_date, ctx.defaultTaskIds);
           return ResponseUtil.success(null);
 
