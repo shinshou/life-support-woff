@@ -37,10 +37,8 @@ var Api = (function () {
    */
   function post(action, body) {
     var payload = Object.assign({ action: action }, body);
-    return fetch(GAS_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    }).then(_handleResponse);
+    return fetch(GAS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)))
+      .then(_handleResponse);
   }
 
   function _handleResponse(res) {

@@ -153,8 +153,77 @@ var Router = (function () {
     return ResponseUtil.success(null);
   }
 
+  /**
+   * GET経由の書き込み処理（CORS対応）
+   * @param {Object} ctx - dataパラメータからパースしたオブジェクト
+   */
+  function routeByData(ctx) {
+    var action = ctx.action;
+    try {
+      switch (action) {
+        case 'createProject':
+          AuthService.verifyAccess(ctx.userId, ctx.roomId);
+          AuthService.requireCreatePermission(ctx.userId);
+          return ResponseUtil.success({ project_id: ProjectService.createProject(ctx) });
+
+        case 'updateProject':
+          AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);
+          AuthService.requireCreatePermission(ctx.userId);
+          ProjectService.updateProject(ctx.projectId, ctx);
+          return ResponseUtil.success(null);
+
+        case 'deleteProject':
+          AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);
+          AuthService.requireCreatePermission(ctx.userId);
+          ProjectService.deleteProject(ctx.projectId);
+          return ResponseUtil.success(null);
+
+        case 'createTask':
+          AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);
+          return ResponseUtil.success({ task_id: TaskService.createTask(ctx) });
+
+        case 'updateTask':
+          AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);
+          TaskService.updateTask(ctx.taskId, ctx);
+          return ResponseUtil.success(null);
+
+        case 'deleteTask':
+          AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);
+          TaskService.deleteTask(ctx.taskId);
+          return ResponseUtil.success(null);
+
+        case 'createDefaultTasks':
+          AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);
+          AuthService.requireCreatePermission(ctx.userId);
+          TaskService.createDefaultTasks(ctx.projectId, ctx.start_date, ctx.defaultTaskIds);
+          return ResponseUtil.success(null);
+
+        case 'saveAsDefaultTask':
+          return ResponseUtil.success({ default_task_id: DefaultTaskModel.create({ task_name: ctx.task_name, offset_days: ctx.offset_days }) });
+
+        case 'linkRoom':
+          AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);
+          AuthService.requireCreatePermission(ctx.userId);
+          ProjectService.linkRoom(ctx.projectId, ctx.targetRoomId);
+          return ResponseUtil.success(null);
+
+        case 'unlinkRoom':
+          AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);
+          AuthService.requireCreatePermission(ctx.userId);
+          ProjectService.unlinkRoom(ctx.projectId, ctx.targetRoomId);
+          return ResponseUtil.success(null);
+
+        default:
+          return ResponseUtil.error('不明な action: ' + action);
+      }
+    } catch (err) {
+      return ResponseUtil.error(err.message);
+    }
+  }
+
   return {
     routeGet: routeGet,
-    routePost: routePost
+    routePost: routePost,
+    routeByData: routeByData
   };
 })();

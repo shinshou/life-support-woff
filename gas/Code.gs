@@ -11,6 +11,16 @@
 function doGet(e) {
   var params = e.parameter || {};
 
+  // POST互換: dataパラメータがある場合は書き込み系処理
+  if (params.data) {
+    try {
+      var ctx = JSON.parse(params.data);
+      return Router.routeByData(ctx);
+    } catch (err) {
+      return ResponseUtil.error('dataパラメータのパースに失敗しました');
+    }
+  }
+
   if (!params.action) {
     return HtmlService.createTemplateFromFile('frontend/index')
       .evaluate()
