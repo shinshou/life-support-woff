@@ -69,21 +69,26 @@ var NotificationService = (function () {
     try {
       var botId = props.getProperty('LINEWORKS_BOT_ID');
       var token = _getAccessToken();
-      UrlFetchApp.fetch(
-        'https://www.worksapis.com/v1.0/bots/' + botId + '/channels/' + roomId + '/messages',
-        {
-          method: 'post',
-          headers: {
-            Authorization: 'Bearer ' + token,
-            'Content-Type': 'application/json'
-          },
-          payload: JSON.stringify({
-            content: { type: 'text', text: message }
-          }),
-          muteHttpExceptions: true,
-          deadline: 10
-        }
-      );
+      var url;
+      if (roomId.indexOf('user_') === 0) {
+        // 1:1トーク用仮想ルーム → userId を取り出してユーザー宛API
+        var userId = roomId.slice('user_'.length);
+        url = 'https://www.worksapis.com/v1.0/bots/' + botId + '/users/' + userId + '/messages';
+      } else {
+        url = 'https://www.worksapis.com/v1.0/bots/' + botId + '/channels/' + roomId + '/messages';
+      }
+      UrlFetchApp.fetch(url, {
+        method: 'post',
+        headers: {
+          Authorization: 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        payload: JSON.stringify({
+          content: { type: 'text', text: message }
+        }),
+        muteHttpExceptions: true,
+        deadline: 10
+      });
     } catch (e) {
       console.error('通知送信エラー roomId=' + roomId + ' : ' + e.message);
     }
