@@ -37,6 +37,7 @@ function doGet(e) {
  * Router.routePost に委譲
  */
 function doPost(e) {
+  _writeLog('doPost受信', e.postData ? e.postData.contents.substring(0, 300) : 'null');
   try {
     var body = JSON.parse(e.postData.contents);
 
