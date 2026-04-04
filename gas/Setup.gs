@@ -16,6 +16,7 @@ function onOpen() {
     .addItem('作成者ユーザーを追加', 'showAddCreatorDialog')
     .addSeparator()
     .addItem('固定メニューを登録', 'setupPersistentMenu')
+    .addItem('日次通知トリガーを登録', 'setupDailyTrigger')
     .addToUi();
 }
 
@@ -65,6 +66,28 @@ function setupPersistentMenu() {
   } else {
     SpreadsheetApp.getUi().alert('エラー: ' + code + '\n' + res.getContentText());
   }
+}
+
+/**
+ * 日次通知トリガーを登録（毎日AM8時）
+ * 既存のトリガーがあれば削除してから再登録
+ */
+function setupDailyTrigger() {
+  var ui = SpreadsheetApp.getUi();
+
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'runDailyNotification') {
+      ScriptApp.deleteTrigger(t);
+    }
+  });
+
+  ScriptApp.newTrigger('runDailyNotification')
+    .timeBased()
+    .everyDays(1)
+    .atHour(8)
+    .create();
+
+  ui.alert('完了', '日次通知トリガーを登録しました。\n毎日 AM 8:00 に実行されます。', ui.ButtonSet.OK);
 }
 
 // ── シート定義 ────────────────────────────────────────────────
