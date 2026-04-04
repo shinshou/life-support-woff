@@ -33,9 +33,8 @@ var App = (function () {
         _userId = info.userId;
         _roomId = info.roomId;
         _displayName = info.displayName;
+        Api.logError('WOFF userId', _userId + ' / roomId:' + _roomId);
 
-        // 作成者権限確認はプロジェクト一覧取得時にサーバー側で制御するが、
-        // UI表示のために getProjects と同時に canCreate フラグを別途確認する
         return Api.get('getProjects', { userId: _userId, roomId: _roomId });
       })
       .then(function (projects) {
