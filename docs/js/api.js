@@ -45,10 +45,20 @@ var Api = (function () {
 
   function _handleResponse(res) {
     return res.json().then(function (json) {
-      if (!json.success) throw new Error(json.error || 'APIエラーが発生しました');
+      if (!json.success) {
+        _log('APIエラー', json.error);
+        throw new Error(json.error || 'APIエラーが発生しました');
+      }
       return json.data;
     });
   }
+
+  function _log(msg, ctx) {
+    if (!GAS_URL) return;
+    fetch(GAS_URL + '?action=writeLog&msg=' + encodeURIComponent(msg) + '&ctx=' + encodeURIComponent(ctx || '')).catch(function(){});
+  }
+
+  function logError(msg, ctx) { _log(msg, ctx); }
 
   function getUrl() { return GAS_URL; }
 
@@ -56,6 +66,7 @@ var Api = (function () {
     setUrl: setUrl,
     getUrl: getUrl,
     get: get,
-    post: post
+    post: post,
+    logError: logError
   };
 })();
