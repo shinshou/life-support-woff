@@ -20,7 +20,11 @@ var AuthService = (function () {
 
     var room = RoomModel.getById(roomId);
     if (!room) {
-      BotEventService.ensureRegistered(roomId);
+      try {
+        BotEventService.ensureRegistered(roomId);
+      } catch (e) {
+        _writeLog('ensureRegistered失敗', 'roomId:' + roomId + ' err:' + e.message);
+      }
     }
 
     if (projectId) {
