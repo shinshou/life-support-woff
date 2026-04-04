@@ -443,3 +443,58 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+
+/* =======================================
+   ルーム管理
+======================================= */
+.btn-manage-rooms {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--color-primary);
+  background: transparent;
+  border: 1px solid var(--color-primary);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.room-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+}
+
+.room-item-name {
+  font-size: 14px;
+  color: var(--color-text);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-link, .btn-unlink {
+  flex-shrink: 0;
+  margin-left: 8px;
+  padding: 4px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-link {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.btn-unlink {
+  background: var(--color-danger);
+  color: #fff;
+}

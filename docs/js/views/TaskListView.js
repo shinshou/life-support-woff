@@ -27,9 +27,9 @@ var TaskListView = (function () {
     var backBtn = document.getElementById('btn-back-task-list');
     if (backBtn) {
       backBtn.onclick = function () {
-        Api.get('getProjects', { userId: App.getUserId(), roomId: App.getRoomId() })
-          .then(function (projects) {
-            App.navigate('project-list', { projects: projects });
+        Api.get('getProjects', { userId: App.getUserId(), roomId: App.getRoomId(), displayName: App.getDisplayName() })
+          .then(function (res) {
+            App.navigate('project-list', { projects: res.projects || [], canCreate: res.canCreate });
           });
       };
     }

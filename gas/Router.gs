@@ -16,13 +16,14 @@ var Router = (function () {
 
     try {
       switch (action) {
-        case 'getProjects':
+        case 'getProjects': {
           AuthService.verifyAccess(params.userId, params.roomId, null, params.displayName);
-          return ResponseUtil.success(
-            params.roomId
-              ? ProjectService.getProjects(params.roomId)
-              : ProjectModel.getAll()
-          );
+          var isCreator = UserModel.canCreate(params.userId);
+          var projectList = isCreator
+            ? ProjectModel.getAll()
+            : ProjectService.getProjects(params.roomId);
+          return ResponseUtil.success({ projects: projectList, canCreate: isCreator });
+        }
 
         case 'getTasks':
           AuthService.verifyAccess(params.userId, params.roomId, params.projectId);

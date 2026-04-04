@@ -4,9 +4,11 @@
  */
 
 var ProjectListView = (function () {
+  var _canCreate = false;
 
   function mount(params) {
     var projects = params.projects || [];
+    _canCreate = !!params.canCreate;
 
     _renderHeader();
     _renderList(projects);
@@ -38,16 +40,31 @@ var ProjectListView = (function () {
 
     // タップイベント登録
     container.querySelectorAll('.card[data-project-id]').forEach(function (el) {
-      el.addEventListener('click', function () {
+      el.addEventListener('click', function (e) {
+        if (e.target.classList.contains('btn-manage-rooms')) return;
         var projectId = el.dataset.projectId;
         var project = projects.find(function (p) { return p.project_id === projectId; });
         _openTaskList(project);
       });
     });
+
+    if (_canCreate) {
+      container.querySelectorAll('.btn-manage-rooms').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var projectId = btn.dataset.projectId;
+          var project = projects.find(function (p) { return p.project_id === projectId; });
+          _openRoomManage(project);
+        });
+      });
+    }
   }
 
   function _buildProjectCard(p) {
     var startDate = p.start_date ? String(p.start_date).slice(0, 10) : '—';
+    var manageBtn = _canCreate
+      ? '<button class="btn-manage-rooms" data-project-id="' + _esc(p.project_id) + '">ルーム管理</button>'
+      : '';
     return [
       '<div class="card" data-project-id="' + _esc(p.project_id) + '">',
       '  <div class="card-title">' + _esc(p.project_name) + '</div>',
@@ -55,22 +72,29 @@ var ProjectListView = (function () {
       '    <span class="badge badge-type">' + _esc(p.project_type) + '</span>',
       '    <span>開始: ' + _esc(startDate) + '</span>',
       '  </div>',
+      manageBtn,
       '</div>'
     ].join('');
+  }
+
+  function _openRoomManage(project) {
+    Promise.all([
+      Api.get('getProjectRooms', { userId: App.getUserId(), roomId: App.getRoomId(), projectId: project.project_id }),
+      Api.get('getRooms', {})
+    ]).then(function (results) {
+      App.navigate('project-room', { project: project, linkedRooms: results[0] || [], allRooms: results[1] || [] });
+    }).catch(function (err) {
+      alert('ルーム情報の取得に失敗しました: ' + err.message);
+    });
   }
 
   function _renderFab() {
     var fab = document.getElementById('fab-project');
     if (!fab) return;
 
-    // 作成権限がある場合のみ表示
-    Api.get('getProjects', { userId: App.getUserId(), roomId: App.getRoomId() })
-      .then(function () {
-        // 権限確認はサーバー側で行うため、ここでは常に表示
-        // createProject が 403 を返した場合は View でエラー表示
-        fab.style.display = 'flex';
-      })
-      .catch(function () {});
+    if (_canCreate) {
+      fab.style.display = 'flex';
+    }
 
     fab.onclick = function () {
       // デフォルトタスク一覧とルーム一覧を取得してから遷移

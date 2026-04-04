@@ -119,10 +119,10 @@ var ProjectCreateView = (function () {
       roomIds: roomIds,
       defaultTaskIds: defaultTaskIds
     }).then(function (data) {
-      // 作成後はプロジェクト一覧を更新して遷移
-      return Api.get('getProjects', { userId: App.getUserId(), roomId: App.getRoomId() });
-    }).then(function (projects) {
-      App.navigate('project-list', { projects: projects });
+      return Api.get('getProjects', { userId: App.getUserId(), roomId: App.getRoomId(), displayName: App.getDisplayName() });
+    }).then(function (res) {
+      App.setCanCreate(res.canCreate);
+      App.navigate('project-list', { projects: res.projects || [], canCreate: res.canCreate });
     }).catch(function (err) {
       _setLoading(false);
       _showError(err.message);
