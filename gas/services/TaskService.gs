@@ -66,6 +66,7 @@ var TaskService = (function () {
         project_id: projectId,
         default_task_id: defaultTask.default_task_id,
         task_name: defaultTask.task_name,
+        start_date: startDate,
         due_date: dueDate,
         status: '未着手'
       });
