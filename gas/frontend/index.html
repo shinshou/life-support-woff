@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>タスク管理</title>
+  <?!= HtmlService.createHtmlOutputFromFile('frontend/css/style').getContent(); ?>
+</head>
+<body>
+
+<!-- ==============================
+  P01: 初期化・認証中
+=============================== -->
+<div id="page-init" class="page active">
+  <div class="loading-wrap">
+    <div id="init-spinner" class="spinner"></div>
+    <p>認証中...</p>
+    <p id="init-error" class="error-msg" style="display:none;"></p>
+  </div>
+</div>
+
+<!-- ==============================
+  P02: プロジェクト一覧
+=============================== -->
+<div id="page-project-list" class="page">
+  <header class="header" id="header-project-list">
+    <span class="header-title">タスク管理</span>
+  </header>
+  <div class="container" id="project-list-container">
+    <!-- ProjectListView が描画 -->
+  </div>
+  <button class="fab" id="fab-project" style="display:none;" aria-label="プロジェクト作成">＋</button>
+</div>
+
+<!-- ==============================
+  P03: プロジェクト作成
+=============================== -->
+<div id="page-project-create" class="page">
+  <header class="header">
+    <button class="header-back-btn" id="btn-back-project-create" aria-label="戻る">‹</button>
+    <span class="header-title">プロジェクト作成</span>
+  </header>
+  <div class="container">
+    <form id="form-project-create" novalidate>
+
+      <div class="form-group">
+        <label class="form-label" for="input-project-name">
+          プロジェクト名<span class="required">*</span>
+        </label>
+        <input class="form-input" type="text" id="input-project-name"
+               placeholder="例: 2024年春 新人研修" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="input-project-type">
+          プロジェクト種別<span class="required">*</span>
+        </label>
+        <select class="form-select" id="input-project-type" required>
+          <option value="">選択してください</option>
+          <option value="研修">研修</option>
+          <option value="イベント">イベント</option>
+          <option value="業務改善">業務改善</option>
+          <option value="その他">その他</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="input-start-date">
+          開始日<span class="required">*</span>
+        </label>
+        <input class="form-input" type="date" id="input-start-date" required>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">紐付けルーム</div>
+        <div id="room-check-list">
+          <!-- ProjectCreateView が描画 -->
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">初期タスク（デフォルトタスクから選択）</div>
+        <button type="button" class="check-select-all" id="btn-select-all-tasks">すべて選択</button>
+        <div id="default-task-list">
+          <!-- ProjectCreateView が描画 -->
+        </div>
+      </div>
+
+      <p id="project-create-error" class="error-msg" style="display:none;"></p>
+
+      <button type="submit" class="btn btn-primary" id="btn-create-project">作成する</button>
+
+    </form>
+  </div>
+</div>
+
+<!-- ==============================
+  P04: タスク一覧
+=============================== -->
+<div id="page-task-list" class="page">
+  <header class="header">
+    <button class="header-back-btn" id="btn-back-task-list" aria-label="戻る">‹</button>
+    <span class="header-title" id="task-list-title"></span>
+  </header>
+
+  <div class="filter-tabs">
+    <button class="filter-tab active" data-filter="all">すべて</button>
+    <button class="filter-tab" data-filter="pending">未着手</button>
+    <button class="filter-tab" data-filter="progress">進行中</button>
+    <button class="filter-tab" data-filter="done">完了</button>
+  </div>
+
+  <div class="container" id="task-list-container" style="margin-top:8px;">
+    <!-- TaskListView が描画 -->
+  </div>
+
+  <button class="fab" id="fab-task" aria-label="タスク追加">＋</button>
+</div>
+
+<!-- ==============================
+  P05: タスク編集
+=============================== -->
+<div id="page-task-edit" class="page">
+  <header class="header">
+    <button class="header-back-btn" id="btn-back-task-edit" aria-label="戻る">‹</button>
+    <span class="header-title" id="task-edit-title">タスク編集</span>
+  </header>
+  <div class="container">
+    <form id="form-task-edit" novalidate>
+
+      <div class="form-group">
+        <label class="form-label" for="input-task-name">
+          タスク名<span class="required">*</span>
+        </label>
+        <input class="form-input" type="text" id="input-task-name"
+               placeholder="例: 資料準備" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="input-task-assignee">担当者</label>
+        <input class="form-input" type="text" id="input-task-assignee"
+               placeholder="例: 山田 太郎">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="input-task-due">期日</label>
+        <input class="form-input" type="date" id="input-task-due">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="select-task-status">ステータス</label>
+        <select class="form-select" id="select-task-status">
+          <option value="未着手">未着手</option>
+          <option value="進行中">進行中</option>
+          <option value="完了">完了</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="input-task-comment">コメント</label>
+        <textarea class="form-textarea" id="input-task-comment"
+                  placeholder="メモや連絡事項など"></textarea>
+      </div>
+
+      <p id="task-edit-error" class="error-msg" style="display:none;"></p>
+
+      <button type="submit" class="btn btn-primary" id="btn-save-task">保存する</button>
+      <button type="button" class="btn btn-danger" id="btn-delete-task"
+              style="display:none;">削除する</button>
+
+    </form>
+  </div>
+</div>
+
+<!-- ==============================
+  スクリプト読み込み
+=============================== -->
+<script charset="utf-8" src="https://static.worksmobile.net/static/wm/woff/edge/3.7.1/sdk.js"></script>
+<?!= HtmlService.createHtmlOutputFromFile('frontend/js/woff').getContent(); ?>
+<?!= HtmlService.createHtmlOutputFromFile('frontend/js/api').getContent(); ?>
+<?!= HtmlService.createHtmlOutputFromFile('frontend/js/views/ProjectListView').getContent(); ?>
+<?!= HtmlService.createHtmlOutputFromFile('frontend/js/views/ProjectCreateView').getContent(); ?>
+<?!= HtmlService.createHtmlOutputFromFile('frontend/js/views/TaskListView').getContent(); ?>
+<?!= HtmlService.createHtmlOutputFromFile('frontend/js/views/TaskEditView').getContent(); ?>
+<?!= HtmlService.createHtmlOutputFromFile('frontend/js/app').getContent(); ?>
+
+<script>
+  // ===== 設定 =====
+  var WOFF_ID    = 'ggbiJAQlkAvjkCCZSHVusg';    // WOFF Developer Console で取得
+  var GAS_URL    = 'https://script.google.com/macros/s/AKfycby7uayFUcXkrySu4sOuiUzB6qMnYL-pcQKITbQ0P-1nLyTYdrRpztB3TMDWYPHR3Zw4/exec';    // GAS Web App デプロイ URL
+
+  // ===== View 登録 =====
+  App.registerView('project-list',   ProjectListView);
+  App.registerView('project-create', ProjectCreateView);
+  App.registerView('task-list',      TaskListView);
+  App.registerView('task-edit',      TaskEditView);
+
+  // ===== 起動 =====
+  Api.setUrl(GAS_URL);
+  // URLとhashをログに記録（デバッグ用）
+  fetch(GAS_URL + '?action=writeLog&msg=' + encodeURIComponent(location.href) + '&ctx=' + encodeURIComponent(location.hash));
+  if (typeof woff === 'undefined') {
+    document.getElementById('init-error').textContent = 'WOFF SDKの読み込みに失敗しました。LINE WORKSアプリから開いてください。';
+    document.getElementById('init-error').style.display = 'block';
+    document.getElementById('init-spinner').style.display = 'none';
+    fetch(GAS_URL + '?action=writeLog&msg=' + encodeURIComponent('WOFF SDK undefined') + '&ctx=index');
+  } else {
+    App.start(WOFF_ID, GAS_URL);
+  }
+</script>
+
+</body>
+</html>
