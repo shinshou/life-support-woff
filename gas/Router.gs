@@ -18,7 +18,11 @@ var Router = (function () {
       switch (action) {
         case 'getProjects':
           AuthService.verifyAccess(params.userId, params.roomId);
-          return ResponseUtil.success(ProjectService.getProjects(params.roomId));
+          return ResponseUtil.success(
+            params.roomId
+              ? ProjectService.getProjects(params.roomId)
+              : ProjectModel.getAll()
+          );
 
         case 'getTasks':
           AuthService.verifyAccess(params.userId, params.roomId, params.projectId);

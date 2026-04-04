@@ -16,7 +16,7 @@ var AuthService = (function () {
    * @throws {Error} アクセス不可の場合
    */
   function verifyAccess(userId, roomId, projectId) {
-    if (!roomId) throw new Error('roomId が指定されていません');
+    if (!roomId) return; // 1:1トークの場合はroomIdなしで許可
 
     var room = RoomModel.getById(roomId);
     if (!room) throw new Error('ルームが登録されていません: ' + roomId);
