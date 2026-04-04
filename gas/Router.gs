@@ -181,10 +181,12 @@ var Router = (function () {
 
         case 'createTask':
           AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);
+          ctx.project_id = ctx.project_id || ctx.projectId;
           return ResponseUtil.success({ task_id: TaskService.createTask(ctx) });
 
         case 'updateTask':
           AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);
+          ctx.project_id = ctx.project_id || ctx.projectId;
           TaskService.updateTask(ctx.taskId, ctx);
           return ResponseUtil.success(null);
 
