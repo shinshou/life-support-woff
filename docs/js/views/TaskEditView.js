@@ -87,10 +87,14 @@ var TaskEditView = (function () {
     }
 
     promise
-      .then(function () { _goBackToTaskList(); })
+      .then(function (res) {
+        Api.logError('createTask成功', JSON.stringify(res));
+        _goBackToTaskList();
+      })
       .catch(function (err) {
         _setLoading(false);
         _showError(err.message);
+        Api.logError('createTask失敗', err.message);
       });
   }
 
@@ -137,7 +141,11 @@ var TaskEditView = (function () {
       roomId: App.getRoomId(),
       projectId: _project.project_id
     }).then(function (tasks) {
+      Api.logError('getTasks件数', String((tasks || []).length));
       App.navigate('task-list', { project: _project, tasks: tasks || [] });
+    }).catch(function (err) {
+      Api.logError('getTasks失敗', err.message);
+      App.navigate('task-list', { project: _project, tasks: [] });
     });
   }
 
