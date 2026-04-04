@@ -32,6 +32,7 @@ var TaskModel = (function () {
       default_task_id: data.default_task_id || '',
       task_name: data.task_name,
       assignee: data.assignee || '',
+      start_date: data.start_date || '',
       due_date: data.due_date || '',
       status: data.status || '未着手',
       comment: data.comment || ''
