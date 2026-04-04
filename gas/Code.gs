@@ -27,10 +27,20 @@ function doGet(e) {
  * Router.routePost に委譲
  */
 function doPost(e) {
-  _writeLog('doPost受信', JSON.stringify({
-    postData: e.postData ? e.postData.contents : 'null',
-    params: JSON.stringify(e.parameter)
-  }));
+  try {
+    var body = JSON.parse(e.postData.contents);
+
+    // LINE WORKS Bot Callback（typeフィールドあり）
+    if (body.type) {
+      _writeLog('BotEvent', body.type + ' channelId:' + (body.source && body.source.channelId || body.channelId || ''));
+      BotEventService.handleEvent(body);
+      return ResponseUtil.success(null);
+    }
+  } catch (err) {
+    // パース失敗はAPIリクエストとして処理
+  }
+
+  _writeLog('doPost受信', e.postData ? e.postData.contents.substring(0, 200) : 'null');
   return Router.routePost(e);
 }
 
