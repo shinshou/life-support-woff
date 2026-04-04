@@ -78,9 +78,9 @@ var SHEET_DEFINITIONS = [
   },
   {
     name: 'タスク',
-    headers: ['task_id', 'project_id', 'default_task_id', 'task_name', 'assignee', 'due_date', 'status', 'comment'],
+    headers: ['task_id', 'project_id', 'default_task_id', 'task_name', 'assignee', 'start_date', 'due_date', 'status', 'comment'],
     headerColor: '#2e7d32',
-    colWidths: [200, 200, 200, 200, 120, 120, 80, 240]
+    colWidths: [200, 200, 200, 200, 120, 120, 120, 80, 240]
   },
   {
     name: 'デフォルトタスク',

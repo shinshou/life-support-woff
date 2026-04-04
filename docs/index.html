@@ -143,6 +143,11 @@
       </div>
 
       <div class="form-group">
+        <label class="form-label" for="input-task-start">開始日</label>
+        <input class="form-input" type="date" id="input-task-start">
+      </div>
+
+      <div class="form-group">
         <label class="form-label" for="input-task-due">期日</label>
         <input class="form-input" type="date" id="input-task-due">
       </div>
@@ -165,6 +170,8 @@
       <p id="task-edit-error" class="error-msg" style="display:none;"></p>
 
       <button type="submit" class="btn btn-primary" id="btn-save-task">保存する</button>
+      <button type="button" class="btn btn-secondary" id="btn-save-as-default"
+              style="display:none;">デフォルトタスクとして保存</button>
       <button type="button" class="btn btn-danger" id="btn-delete-task"
               style="display:none;">削除する</button>
 

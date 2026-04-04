@@ -110,6 +110,14 @@ var Router = (function () {
           TaskService.createDefaultTasks(ctx.projectId, ctx.start_date, ctx.defaultTaskIds);
           return ResponseUtil.success(null);
 
+        case 'saveAsDefaultTask':
+          return ResponseUtil.success({
+            default_task_id: DefaultTaskModel.create({
+              task_name: ctx.task_name,
+              offset_days: ctx.offset_days
+            })
+          });
+
         // ── ルーム紐付け ──────────────────────────────
         case 'linkRoom':
           AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);

@@ -31,14 +31,16 @@ var TaskEditView = (function () {
   function _fillForm() {
     _val('input-task-name', _isNew ? '' : _task.task_name);
     _val('input-task-assignee', _isNew ? '' : _task.assignee);
+    _val('input-task-start', _isNew ? '' : String(_task.start_date || '').slice(0, 10));
     _val('input-task-due', _isNew ? '' : String(_task.due_date || '').slice(0, 10));
     _val('select-task-status', _isNew ? '未着手' : _task.status);
     _val('input-task-comment', _isNew ? '' : _task.comment);
 
     var deleteBtn = document.getElementById('btn-delete-task');
-    if (deleteBtn) {
-      deleteBtn.style.display = _isNew ? 'none' : 'block';
-    }
+    if (deleteBtn) deleteBtn.style.display = _isNew ? 'none' : 'block';
+
+    var defaultBtn = document.getElementById('btn-save-as-default');
+    if (defaultBtn) defaultBtn.style.display = 'block';
 
     var errorEl = document.getElementById('task-edit-error');
     if (errorEl) errorEl.style.display = 'none';
@@ -50,6 +52,9 @@ var TaskEditView = (function () {
 
     var deleteBtn = document.getElementById('btn-delete-task');
     if (deleteBtn) deleteBtn.onclick = _deleteTask;
+
+    var defaultBtn = document.getElementById('btn-save-as-default');
+    if (defaultBtn) defaultBtn.onclick = _saveAsDefault;
   }
 
   function _submit() {
@@ -65,6 +70,7 @@ var TaskEditView = (function () {
       projectId: _project.project_id,
       task_name: taskName,
       assignee: document.getElementById('input-task-assignee').value.trim(),
+      start_date: document.getElementById('input-task-start').value,
       due_date: document.getElementById('input-task-due').value,
       status: document.getElementById('select-task-status').value,
       comment: document.getElementById('input-task-comment').value.trim()
@@ -98,6 +104,28 @@ var TaskEditView = (function () {
       taskId: _task.task_id
     }).then(function () {
       _goBackToTaskList();
+    }).catch(function (err) {
+      _showError(err.message);
+    });
+  }
+
+  function _saveAsDefault() {
+    var taskName = document.getElementById('input-task-name').value.trim();
+    if (!taskName) { _showError('タスク名を入力してください'); return; }
+
+    var startDate = document.getElementById('input-task-start').value;
+    var dueDate = document.getElementById('input-task-due').value;
+    var offsetDays = 0;
+    if (startDate && dueDate) {
+      var diff = (new Date(dueDate) - new Date(startDate)) / 86400000;
+      offsetDays = Math.max(0, Math.round(diff));
+    }
+
+    Api.post('saveAsDefaultTask', {
+      task_name: taskName,
+      offset_days: offsetDays
+    }).then(function () {
+      alert('デフォルトタスクとして保存しました（工数: ' + offsetDays + '日）');
     }).catch(function (err) {
       _showError(err.message);
     });
