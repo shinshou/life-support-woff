@@ -28,6 +28,7 @@ var AuthService = (function () {
     }
 
     if (projectId) {
+      if (UserModel.canCreate(userId)) return; // 作成者はすべてのプロジェクトにアクセス可
       var linked = ProjectRoomModel.exists(projectId, roomId);
       if (!linked) throw new Error('このルームからはアクセスできないプロジェクトです');
     }
