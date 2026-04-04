@@ -29,7 +29,9 @@ var TaskListView = (function () {
       backBtn.onclick = function () {
         Api.get('getProjects', { userId: App.getUserId(), roomId: App.getRoomId(), displayName: App.getDisplayName() })
           .then(function (res) {
-            App.navigate('project-list', { projects: res.projects || [], canCreate: res.canCreate });
+            var projects = Array.isArray(res) ? res : (res.projects || []);
+            var canCreate = Array.isArray(res) ? false : !!res.canCreate;
+            App.navigate('project-list', { projects: projects, canCreate: canCreate });
           });
       };
     }

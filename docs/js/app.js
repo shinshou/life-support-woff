@@ -38,8 +38,9 @@ var App = (function () {
         return Api.get('getProjects', { userId: _userId, roomId: _roomId, displayName: _displayName });
       })
       .then(function (res) {
-        _canCreate = !!res.canCreate;
-        navigate('project-list', { projects: res.projects || [], canCreate: _canCreate });
+        var projects = Array.isArray(res) ? res : (res.projects || []);
+        _canCreate = Array.isArray(res) ? false : !!res.canCreate;
+        navigate('project-list', { projects: projects, canCreate: _canCreate });
       })
       .catch(function (err) {
         _showInitError(err.message);
