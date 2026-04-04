@@ -36,8 +36,10 @@ var TaskService = (function () {
     TaskModel.update(taskId, data);
 
     if (data.status === '完了' && before.status !== '完了') {
-      var updated = TaskModel.getById(taskId);
-      NotificationService.sendTaskComplete(updated);
+      try {
+        var updated = TaskModel.getById(taskId);
+        NotificationService.sendTaskComplete(updated);
+      } catch (e) { /* 通知失敗はレスポンスに影響させない */ }
     }
   }
 

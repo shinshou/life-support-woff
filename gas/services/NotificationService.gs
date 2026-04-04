@@ -53,7 +53,9 @@ var NotificationService = (function () {
         client_id: clientId,
         client_secret: clientSecret,
         scope: 'bot'
-      }
+      },
+      muteHttpExceptions: true,
+      deadline: 10
     });
     return JSON.parse(res.getContentText()).access_token;
   }
@@ -78,7 +80,8 @@ var NotificationService = (function () {
           payload: JSON.stringify({
             content: { type: 'text', text: message }
           }),
-          muteHttpExceptions: true
+          muteHttpExceptions: true,
+          deadline: 10
         }
       );
     } catch (e) {

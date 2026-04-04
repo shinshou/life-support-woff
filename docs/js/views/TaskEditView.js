@@ -89,6 +89,7 @@ var TaskEditView = (function () {
     promise
       .then(function (res) {
         Api.logError('createTask成功', JSON.stringify(res));
+        _setLoading(false);
         _goBackToTaskList();
       })
       .catch(function (err) {
