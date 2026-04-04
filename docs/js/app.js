@@ -33,8 +33,6 @@ var App = (function () {
         _userId = info.userId;
         _roomId = info.roomId;
         _displayName = info.displayName;
-        Api.logError('WOFF context', 'userId:' + _userId + ' / roomId:' + _roomId + ' / name:' + _displayName);
-
         return Api.get('getProjects', { userId: _userId, roomId: _roomId, displayName: _displayName });
       })
       .then(function (res) {

@@ -12,7 +12,6 @@ var TaskListView = (function () {
     _project = params.project;
     _tasks = params.tasks || [];
     _filter = 'all';
-    Api.logError('TaskListView件数', String(_tasks.length) + ' projectId:' + (_project ? _project.project_id : 'none'));
 
     _renderHeader();
     _bindFilterTabs();

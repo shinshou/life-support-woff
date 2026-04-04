@@ -12,8 +12,6 @@ var BotEventService = (function () {
   function handleEvent(event) {
     var type = event.type;
     var channelId = event.source && event.source.channelId || event.channelId;
-    _writeLog('BotEvent受信', 'type:' + type + ' channelId:' + (channelId || ''));
-
     if (type === 'joined' && channelId) {
       _onJoined(channelId);
     }
@@ -43,7 +41,6 @@ var BotEventService = (function () {
       } else {
         roomName = _fetchChannelName(channelId) || channelId;
       }
-      _writeLog('ルーム自動登録', 'channelId:' + channelId + ' name:' + roomName);
       RoomModel.create({ room_id: channelId, room_name: roomName });
     } catch (e) {
       _writeLog('ルーム自動登録エラー', 'channelId:' + channelId + ' err:' + e.message);

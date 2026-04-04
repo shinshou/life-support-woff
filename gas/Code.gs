@@ -42,7 +42,6 @@ function doPost(e) {
 
     // LINE WORKS Bot Callback（typeフィールドあり）
     if (body.type) {
-      _writeLog('BotEvent', body.type + ' channelId:' + (body.source && body.source.channelId || body.channelId || ''));
       BotEventService.handleEvent(body);
       return ResponseUtil.success(null);
     }
@@ -50,7 +49,6 @@ function doPost(e) {
     // パース失敗はAPIリクエストとして処理
   }
 
-  _writeLog('doPost受信', e.postData ? e.postData.contents.substring(0, 200) : 'null');
   return Router.routePost(e);
 }
 

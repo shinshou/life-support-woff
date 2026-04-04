@@ -27,7 +27,6 @@ var TaskModel = (function () {
   function create(data) {
     var id = SpreadsheetUtil.generateId('task');
     var projectId = data.project_id || data.projectId || '';
-    _writeLog('TaskModel.create', 'project_id:' + projectId + ' task_name:' + (data.task_name || ''));
     SpreadsheetUtil.appendRow(SpreadsheetUtil.getSheet(SHEET), {
       task_id: id,
       project_id: projectId,

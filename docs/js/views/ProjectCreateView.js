@@ -128,7 +128,6 @@ var ProjectCreateView = (function () {
     }).catch(function (err) {
       _setLoading(false);
       _showError(err.message);
-      Api.logError('createProject失敗: ' + err.message, err.stack || '');
     });
   }
 
