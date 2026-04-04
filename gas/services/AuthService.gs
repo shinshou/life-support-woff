@@ -19,7 +19,9 @@ var AuthService = (function () {
     if (!roomId) return; // 1:1トークの場合はroomIdなしで許可
 
     var room = RoomModel.getById(roomId);
-    if (!room) throw new Error('ルームが登録されていません: ' + roomId);
+    if (!room) {
+      BotEventService.ensureRegistered(roomId);
+    }
 
     if (projectId) {
       var linked = ProjectRoomModel.exists(projectId, roomId);

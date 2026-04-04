@@ -23,10 +23,20 @@ var BotEventService = (function () {
    * @param {string} channelId
    */
   function _onJoined(channelId) {
-    // すでに登録済みであればスキップ
+    ensureRegistered(channelId);
+  }
+
+  /**
+   * 未登録のルームを自動登録（既登録ならスキップ）
+   * AuthService からも呼び出す
+   * @param {string} channelId
+   */
+  function ensureRegistered(channelId) {
+    if (!channelId) return;
     if (RoomModel.getById(channelId)) return;
 
     var roomName = _fetchChannelName(channelId) || channelId;
+    _writeLog('BotEventService.ensureRegistered', 'channelId:' + channelId + ' name:' + roomName);
     RoomModel.create({ room_id: channelId, room_name: roomName });
   }
 
@@ -59,6 +69,7 @@ var BotEventService = (function () {
   }
 
   return {
-    handleEvent: handleEvent
+    handleEvent: handleEvent,
+    ensureRegistered: ensureRegistered
   };
 })();
