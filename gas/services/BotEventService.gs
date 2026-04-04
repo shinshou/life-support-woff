@@ -32,11 +32,17 @@ var BotEventService = (function () {
    * AuthService からも呼び出す
    * @param {string} channelId
    */
-  function ensureRegistered(channelId) {
+  function ensureRegistered(channelId, displayName) {
     if (!channelId) return;
     try {
       if (RoomModel.getById(channelId)) return;
-      var roomName = _fetchChannelName(channelId) || channelId;
+      var roomName;
+      if (channelId.indexOf('user_') === 0) {
+        // 1:1トーク用の仮想ルーム: APIは呼ばずdisplayNameを使用
+        roomName = displayName || channelId;
+      } else {
+        roomName = _fetchChannelName(channelId) || channelId;
+      }
       _writeLog('ルーム自動登録', 'channelId:' + channelId + ' name:' + roomName);
       RoomModel.create({ room_id: channelId, room_name: roomName });
     } catch (e) {

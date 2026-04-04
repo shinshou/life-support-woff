@@ -35,7 +35,7 @@ var App = (function () {
         _displayName = info.displayName;
         Api.logError('WOFF context', 'userId:' + _userId + ' / roomId:' + _roomId + ' / name:' + _displayName);
 
-        return Api.get('getProjects', { userId: _userId, roomId: _roomId });
+        return Api.get('getProjects', { userId: _userId, roomId: _roomId, displayName: _displayName });
       })
       .then(function (projects) {
         navigate('project-list', { projects: projects });

@@ -30,7 +30,7 @@ var WoffClient = (function () {
         _profile = profile;
         return {
           userId: profile.userId,
-          roomId: _context.roomId || '',
+          roomId: _context.roomId || ('user_' + profile.userId),
           displayName: profile.displayName
         };
       });
@@ -51,7 +51,7 @@ var WoffClient = (function () {
    */
   function getRoomId() {
     if (!_context) throw new Error('WoffClient が初期化されていません');
-    return _context.roomId || '';
+    return _context.roomId || ('user_' + _profile.userId);
   }
 
   /**

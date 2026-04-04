@@ -17,7 +17,7 @@ var Router = (function () {
     try {
       switch (action) {
         case 'getProjects':
-          AuthService.verifyAccess(params.userId, params.roomId);
+          AuthService.verifyAccess(params.userId, params.roomId, null, params.displayName);
           return ResponseUtil.success(
             params.roomId
               ? ProjectService.getProjects(params.roomId)
