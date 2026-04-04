@@ -159,6 +159,7 @@ var Router = (function () {
    */
   function routeByData(ctx) {
     var action = ctx.action;
+    _writeLog('routeByData', action + ' userId:' + (ctx.userId || '') + ' projectId:' + (ctx.projectId || ''));
     try {
       switch (action) {
         case 'createProject':

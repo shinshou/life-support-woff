@@ -37,8 +37,14 @@ var Api = (function () {
    */
   function post(action, body) {
     var payload = Object.assign({ action: action }, body);
-    return fetch(GAS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)))
-      .then(_handleResponse);
+    var url = GAS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload));
+    _log('post送信', action + ' urlLen:' + url.length);
+    return fetch(url)
+      .then(_handleResponse)
+      .catch(function (err) {
+        _log('post失敗', action + ':' + err.message);
+        throw err;
+      });
   }
 
   function _handleResponse(res) {
@@ -48,6 +54,9 @@ var Api = (function () {
         throw new Error(json.error || 'APIエラーが発生しました');
       }
       return json.data;
+    }).catch(function (err) {
+      _log('レスポンスパース失敗', err.message);
+      throw err;
     });
   }
 
