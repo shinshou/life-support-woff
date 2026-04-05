@@ -16,6 +16,11 @@ var AuthService = (function () {
    * @throws {Error} アクセス不可の場合
    */
   function verifyAccess(userId, roomId, projectId, displayName) {
+    // アクセスユーザーをユーザーシートに記録
+    if (userId) {
+      try { MemberModel.upsert(userId, displayName || ''); } catch (e) {}
+    }
+
     if (!roomId) return;
 
     var room = RoomModel.getById(roomId);
