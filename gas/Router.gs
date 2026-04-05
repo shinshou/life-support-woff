@@ -19,11 +19,17 @@ var Router = (function () {
         case 'getProjects': {
           AuthService.verifyAccess(params.userId, params.roomId, null, params.displayName);
           var isCreator = UserModel.canCreate(params.userId);
+          var isAdmin = MemberModel.isAdmin(params.userId);
           var projectList = isCreator
             ? ProjectModel.getAll()
             : ProjectService.getProjects(params.roomId);
-          return ResponseUtil.success({ projects: projectList, canCreate: isCreator });
+          return ResponseUtil.success({ projects: projectList, canCreate: isCreator, isAdmin: isAdmin });
         }
+
+        case 'getUsers':
+          AuthService.verifyAccess(params.userId, params.roomId, null, params.displayName);
+          if (!MemberModel.isAdmin(params.userId)) throw new Error('管理者権限がありません');
+          return ResponseUtil.success(_getUsersWithCreatorStatus());
 
         case 'getTasks':
           AuthService.verifyAccess(params.userId, params.roomId, params.projectId);
@@ -117,6 +123,19 @@ var Router = (function () {
               offset_days: ctx.offset_days
             })
           });
+
+        // ── 管理者：作成者設定 ────────────────────────
+        case 'setCreator': {
+          AuthService.verifyAccess(ctx.userId, ctx.roomId);
+          if (!MemberModel.isAdmin(ctx.userId)) throw new Error('管理者権限がありません');
+          var target = UserModel.getByUserId(ctx.targetUserId);
+          if (target) {
+            UserModel.update(ctx.targetUserId, ctx.canCreate);
+          } else {
+            UserModel.create(ctx.targetUserId, ctx.canCreate);
+          }
+          return ResponseUtil.success(null);
+        }
 
         // ── ルーム紐付け ──────────────────────────────
         case 'linkRoom':
@@ -214,12 +233,39 @@ var Router = (function () {
           ProjectService.unlinkRoom(ctx.projectId, ctx.targetRoomId);
           return ResponseUtil.success(null);
 
+        case 'setCreator': {
+          AuthService.verifyAccess(ctx.userId, ctx.roomId);
+          if (!MemberModel.isAdmin(ctx.userId)) throw new Error('管理者権限がありません');
+          var target = UserModel.getByUserId(ctx.targetUserId);
+          if (target) {
+            UserModel.update(ctx.targetUserId, ctx.canCreate);
+          } else {
+            UserModel.create(ctx.targetUserId, ctx.canCreate);
+          }
+          return ResponseUtil.success(null);
+        }
+
         default:
           return ResponseUtil.error('不明な action: ' + action);
       }
     } catch (err) {
       return ResponseUtil.error(err.message);
     }
+  }
+
+  /**
+   * ユーザー一覧に作成者フラグを付与
+   */
+  function _getUsersWithCreatorStatus() {
+    var members = MemberModel.getAll();
+    return members.map(function (m) {
+      return {
+        user_id: m.user_id,
+        display_name: m.display_name,
+        is_admin: m.is_admin === true || m.is_admin === 'TRUE',
+        can_create: UserModel.canCreate(m.user_id)
+      };
+    });
   }
 
   return {

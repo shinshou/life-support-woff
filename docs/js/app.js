@@ -38,7 +38,8 @@ var App = (function () {
       .then(function (res) {
         var projects = Array.isArray(res) ? res : (res.projects || []);
         _canCreate = Array.isArray(res) ? false : !!res.canCreate;
-        navigate('project-list', { projects: projects, canCreate: _canCreate });
+        var isAdmin = Array.isArray(res) ? false : !!res.isAdmin;
+        navigate('project-list', { projects: projects, canCreate: _canCreate, isAdmin: isAdmin });
       })
       .catch(function (err) {
         _showInitError(err.message);

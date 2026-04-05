@@ -232,6 +232,22 @@
 </div>
 
 <!-- ==============================
+  P08: 管理者画面
+=============================== -->
+<div id="page-admin" class="page">
+  <header class="header">
+    <button class="header-back-btn" id="btn-back-admin" aria-label="戻る">‹</button>
+    <span class="header-title">管理者設定</span>
+  </header>
+  <div class="container">
+    <div class="form-label" style="margin-bottom:8px;">作成者の設定</div>
+    <p style="font-size:12px;color:#888;margin-bottom:12px;">ONにしたユーザーはプロジェクトの作成・編集が可能になります。</p>
+    <div id="admin-user-list"></div>
+    <p id="admin-error" class="error-msg" style="display:none;"></p>
+  </div>
+</div>
+
+<!-- ==============================
   スクリプト読み込み
 =============================== -->
 <script charset="utf-8" src="https://static.worksmobile.net/static/wm/woff/edge/3.7.1/sdk.js"></script>
@@ -243,6 +259,7 @@
 <script src="js/views/TaskEditView.js"></script>
 <script src="js/views/TaskFromDefaultView.js"></script>
 <script src="js/views/ProjectRoomView.js"></script>
+<script src="js/views/AdminView.js"></script>
 <script src="js/app.js"></script>
 <script src="js/config.js"></script>
 
@@ -254,6 +271,7 @@
   App.registerView('task-edit',      TaskEditView);
   App.registerView('task-from-default', TaskFromDefaultView);
   App.registerView('project-room',   ProjectRoomView);
+  App.registerView('admin',          AdminView);
 
   // ===== 起動 =====
   App.start(WOFF_ID, GAS_URL);

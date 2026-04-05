@@ -10,14 +10,32 @@ var ProjectListView = (function () {
     var projects = params.projects || [];
     _canCreate = !!params.canCreate;
 
-    _renderHeader();
+    _renderHeader(!!params.isAdmin);
     _renderList(projects);
     _renderFab();
   }
 
-  function _renderHeader() {
+  function _renderHeader(isAdmin) {
     var header = document.getElementById('header-project-list');
-    if (header) header.querySelector('.header-title').textContent = 'タスク管理';
+    if (!header) return;
+    header.querySelector('.header-title').textContent = 'タスク管理';
+
+    var existing = document.getElementById('btn-admin');
+    if (existing) existing.remove();
+
+    if (isAdmin) {
+      var btn = document.createElement('button');
+      btn.id = 'btn-admin';
+      btn.className = 'header-action-btn';
+      btn.textContent = '管理者設定';
+      btn.onclick = function () {
+        Api.get('getUsers', { userId: App.getUserId(), roomId: App.getRoomId(), displayName: App.getDisplayName() })
+          .then(function (users) {
+            App.navigate('admin', { users: users || [] });
+          });
+      };
+      header.appendChild(btn);
+    }
   }
 
   function _renderList(projects) {

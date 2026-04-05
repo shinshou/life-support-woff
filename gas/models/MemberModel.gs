@@ -46,11 +46,22 @@ var MemberModel = (function () {
     }
   }
 
+  /**
+   * @param {string} userId
+   * @returns {boolean}
+   */
+  function isAdmin(userId) {
+    var row = getById(userId);
+    if (!row) return false;
+    return row['is_admin'] === true || row['is_admin'] === 'TRUE';
+  }
+
   return {
     getAll: getAll,
     getById: getById,
     create: create,
     update: update,
-    upsert: upsert
+    upsert: upsert,
+    isAdmin: isAdmin
   };
 })();

@@ -119,9 +119,9 @@ var SHEET_DEFINITIONS = [
   },
   {
     name: 'ユーザー',
-    headers: ['user_id', 'display_name'],
+    headers: ['user_id', 'display_name', 'is_admin'],
     headerColor: '#0277bd',
-    colWidths: [220, 240]
+    colWidths: [220, 240, 100]
   },
   {
     name: 'プロジェクト_ルーム紐付け',
