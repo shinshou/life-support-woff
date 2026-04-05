@@ -29,7 +29,9 @@ var WoffClient = (function () {
       })
       .then(function (profile) {
         _profile = profile;
-        return Promise.resolve(woff.getChannelId()).catch(function () { return null; })
+        var isChannel = _context && _context.type === 'channel';
+        return Promise.resolve(isChannel ? woff.getChannelId() : null)
+          .catch(function () { return null; })
           .then(function (channelId) {
             _roomId = channelId || ('user_' + profile.userId);
             return {
