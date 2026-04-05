@@ -119,9 +119,9 @@ var SHEET_DEFINITIONS = [
   },
   {
     name: 'ユーザー',
-    headers: ['user_id', 'display_name', 'is_admin'],
+    headers: ['user_id', 'display_name', 'is_admin', 'can_create'],
     headerColor: '#0277bd',
-    colWidths: [220, 240, 100]
+    colWidths: [220, 240, 100, 100]
   },
   {
     name: 'プロジェクト_ルーム紐付け',
@@ -129,12 +129,6 @@ var SHEET_DEFINITIONS = [
     headerColor: '#37474f',
     colWidths: [200, 220]
   },
-  {
-    name: '作成者管理',
-    headers: ['user_id', '作成可否'],
-    headerColor: '#880e4f',
-    colWidths: [220, 100]
-  }
 ];
 
 // ── メイン処理 ────────────────────────────────────────────────

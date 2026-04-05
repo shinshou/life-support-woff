@@ -56,12 +56,34 @@ var MemberModel = (function () {
     return row['is_admin'] === true || row['is_admin'] === 'TRUE';
   }
 
+  /**
+   * @param {string} userId
+   * @returns {boolean}
+   */
+  function canCreate(userId) {
+    var row = getById(userId);
+    if (!row) return false;
+    return row['can_create'] === true || row['can_create'] === 'TRUE';
+  }
+
+  /**
+   * @param {string} userId
+   * @param {boolean} flag
+   */
+  function setCanCreate(userId, flag) {
+    var row = getById(userId);
+    if (!row) throw new Error('ユーザーが見つかりません: ' + userId);
+    SpreadsheetUtil.updateRow(SpreadsheetUtil.getSheet(SHEET), row._rowIndex, { can_create: flag ? true : false });
+  }
+
   return {
     getAll: getAll,
     getById: getById,
     create: create,
     update: update,
     upsert: upsert,
-    isAdmin: isAdmin
+    isAdmin: isAdmin,
+    canCreate: canCreate,
+    setCanCreate: setCanCreate
   };
 })();

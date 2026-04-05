@@ -257,13 +257,12 @@ var Router = (function () {
    * ユーザー一覧に作成者フラグを付与
    */
   function _getUsersWithCreatorStatus() {
-    var members = MemberModel.getAll();
-    return members.map(function (m) {
+    return MemberModel.getAll().map(function (m) {
       return {
         user_id: m.user_id,
         display_name: m.display_name,
         is_admin: m.is_admin === true || m.is_admin === 'TRUE',
-        can_create: UserModel.canCreate(m.user_id)
+        can_create: m.can_create === true || m.can_create === 'TRUE'
       };
     });
   }

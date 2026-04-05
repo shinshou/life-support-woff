@@ -16,28 +16,26 @@ var UserModel = (function () {
   }
 
   /**
+   * ユーザーシートに委譲
    * @param {string} userId
    * @returns {boolean}
    */
   function canCreate(userId) {
-    var row = getByUserId(userId);
-    if (!row) return false;
-    return row['作成可否'] === true || row['作成可否'] === 'TRUE';
+    return MemberModel.canCreate(userId);
   }
 
+  /**
+   * ユーザーシートに委譲
+   * @param {string} userId
+   * @param {boolean} canCreateFlag
+   */
   function create(userId, canCreateFlag) {
-    SpreadsheetUtil.appendRow(SpreadsheetUtil.getSheet(SHEET), {
-      user_id: userId,
-      '作成可否': canCreateFlag ? true : false
-    });
+    MemberModel.upsert(userId, '');
+    MemberModel.setCanCreate(userId, !!canCreateFlag);
   }
 
   function update(userId, canCreateFlag) {
-    var row = getByUserId(userId);
-    if (!row) throw new Error('ユーザーが見つかりません: ' + userId);
-    SpreadsheetUtil.updateRow(SpreadsheetUtil.getSheet(SHEET), row._rowIndex, {
-      '作成可否': canCreateFlag ? true : false
-    });
+    MemberModel.setCanCreate(userId, !!canCreateFlag);
   }
 
   return {
