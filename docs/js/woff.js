@@ -28,6 +28,11 @@ var WoffClient = (function () {
       })
       .then(function (profile) {
         _profile = profile;
+        // DEBUGコンテキスト確認用ログ（確認後削除）
+        if (window._debugGasUrl) {
+          var ctx = { type: _context.type, channelId: _context.channelId, roomId: _context.roomId, userId: _context.userId };
+          fetch(window._debugGasUrl + '?action=writeLog&msg=WOFFcontext&ctx=' + encodeURIComponent(JSON.stringify(ctx)));
+        }
         return {
           userId: profile.userId,
           roomId: _context.channelId || ('user_' + profile.userId),

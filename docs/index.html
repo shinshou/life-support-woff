@@ -251,6 +251,7 @@
   App.registerView('project-room',   ProjectRoomView);
 
   // ===== 起動 =====
+  window._debugGasUrl = GAS_URL; // DEBUGコンテキスト確認用（確認後削除）
   App.start(WOFF_ID, GAS_URL);
 </script>
 
