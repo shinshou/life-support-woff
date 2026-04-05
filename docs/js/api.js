@@ -25,8 +25,11 @@ var Api = (function () {
     var qs = Object.keys(query)
       .map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(query[k]); })
       .join('&');
+    _showOverlay();
     return fetch(GAS_URL + '?' + qs)
-      .then(_handleResponse);
+      .then(_handleResponse)
+      .then(function (data) { _hideOverlay(); return data; })
+      .catch(function (err) { _hideOverlay(); throw err; });
   }
 
   /**
@@ -39,9 +42,12 @@ var Api = (function () {
     var payload = Object.assign({ action: action }, body);
     var url = GAS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload));
     _log('post送信', action + ' urlLen:' + url.length);
+    _showOverlay();
     return fetch(url)
       .then(_handleResponse)
+      .then(function (data) { _hideOverlay(); return data; })
       .catch(function (err) {
+        _hideOverlay();
         _log('post失敗', action + ':' + err.message);
         throw err;
       });
@@ -58,6 +64,16 @@ var Api = (function () {
       _log('レスポンスパース失敗', err.message);
       throw err;
     });
+  }
+
+  function _showOverlay() {
+    var el = document.getElementById('loading-overlay');
+    if (el) el.classList.add('active');
+  }
+
+  function _hideOverlay() {
+    var el = document.getElementById('loading-overlay');
+    if (el) el.classList.remove('active');
   }
 
   function _log(msg, ctx) {
