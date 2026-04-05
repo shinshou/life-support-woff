@@ -37,13 +37,13 @@ var BotEventService = (function () {
       var existing = RoomModel.getById(channelId);
       if (existing) {
         if (!existing.room_name || existing.room_name === channelId) {
-          var updatedName = _fetchChannelName(channelId) || '';
+          var updatedName = _fetchChannelName(channelId) || displayName || '';
           if (updatedName && updatedName !== channelId) {
             RoomModel.update(channelId, { room_name: updatedName });
           }
         }
       } else {
-        var roomName = _fetchChannelName(channelId) || channelId;
+        var roomName = _fetchChannelName(channelId) || displayName || channelId;
         RoomModel.create({ room_id: channelId, room_name: roomName });
       }
 
