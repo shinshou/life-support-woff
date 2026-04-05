@@ -29,11 +29,14 @@ var WoffClient = (function () {
       })
       .then(function (profile) {
         _profile = profile;
-        var isChannel = _context && _context.type === 'channel';
-        return Promise.resolve(isChannel ? woff.getChannelId() : null)
-          .catch(function () { return null; })
+        return Promise.resolve(woff.getChannelId()).catch(function () { return null; })
           .then(function (channelId) {
-            _roomId = channelId || ('user_' + profile.userId);
+            // DEBUG: context.type確認用（確認後削除）
+            if (window._debugGasUrl) {
+              fetch(window._debugGasUrl + '?action=writeLog&msg=WOFFcontext&ctx=' + encodeURIComponent(JSON.stringify({ type: _context && _context.type, channelId: channelId })));
+            }
+            var isChannel = _context && _context.type === 'channel';
+            _roomId = (isChannel && channelId) ? channelId : ('user_' + profile.userId);
             return {
               userId: profile.userId,
               roomId: _roomId,
