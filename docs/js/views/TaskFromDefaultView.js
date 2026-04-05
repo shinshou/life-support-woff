@@ -11,6 +11,12 @@ var TaskFromDefaultView = (function () {
     _project = params.project;
     _defaultTasks = params.defaultTasks || [];
 
+    var btn = document.getElementById('btn-submit-default-tasks');
+    if (btn) { btn.disabled = false; btn.textContent = '追加する'; }
+
+    var errEl = document.getElementById('task-from-default-error');
+    if (errEl) { errEl.textContent = ''; errEl.style.display = 'none'; }
+
     _renderList();
     _bindEvents();
   }
