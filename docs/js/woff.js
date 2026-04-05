@@ -6,6 +6,7 @@
 var WoffClient = (function () {
   var _context = null;
   var _profile = null;
+  var _roomId = null;
 
   /**
    * WOFF SDK 初期化と認証情報の取得
@@ -28,13 +29,15 @@ var WoffClient = (function () {
       })
       .then(function (profile) {
         _profile = profile;
-        var channelId = null;
-        try { channelId = woff.getChannelId(); } catch (e) {}
-        return {
-          userId: profile.userId,
-          roomId: channelId || ('user_' + profile.userId),
-          displayName: profile.displayName
-        };
+        return Promise.resolve(woff.getChannelId()).catch(function () { return null; })
+          .then(function (channelId) {
+            _roomId = channelId || ('user_' + profile.userId);
+            return {
+              userId: profile.userId,
+              roomId: _roomId,
+              displayName: profile.displayName
+            };
+          });
       });
   }
 
@@ -52,10 +55,8 @@ var WoffClient = (function () {
    * @returns {string}
    */
   function getRoomId() {
-    if (!_context) throw new Error('WoffClient が初期化されていません');
-    var channelId = null;
-    try { channelId = woff.getChannelId(); } catch (e) {}
-    return channelId || ('user_' + _profile.userId);
+    if (!_roomId) throw new Error('WoffClient が初期化されていません');
+    return _roomId;
   }
 
   /**
