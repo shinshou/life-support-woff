@@ -80,7 +80,7 @@ var BotEventService = (function () {
 
       if (res.getResponseCode() !== 200) return null;
       var data = JSON.parse(res.getContentText());
-      return data.channelName || data.name || null;
+      return data.title || data.channelName || data.name || null;
     } catch (e) {
       return null;
     }
