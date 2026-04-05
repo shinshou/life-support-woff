@@ -31,12 +31,11 @@ var WoffClient = (function () {
         _profile = profile;
         return Promise.resolve(woff.getChannelId()).catch(function () { return null; })
           .then(function (channelId) {
-            // DEBUG: context.type確認用（確認後削除）
+            // DEBUG: context全プロパティ確認用（確認後削除）
             if (window._debugGasUrl) {
-              fetch(window._debugGasUrl + '?action=writeLog&msg=WOFFcontext&ctx=' + encodeURIComponent(JSON.stringify({ type: _context && _context.type, channelId: channelId })));
+              fetch(window._debugGasUrl + '?action=writeLog&msg=WOFFcontext&ctx=' + encodeURIComponent(JSON.stringify(_context)));
             }
-            var isChannel = _context && _context.type === 'channel';
-            _roomId = (isChannel && channelId) ? channelId : ('user_' + profile.userId);
+            _roomId = channelId || ('user_' + profile.userId);
             return {
               userId: profile.userId,
               roomId: _roomId,
