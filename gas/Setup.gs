@@ -118,6 +118,12 @@ var SHEET_DEFINITIONS = [
     colWidths: [220, 240]
   },
   {
+    name: 'ユーザー',
+    headers: ['user_id', 'display_name'],
+    headerColor: '#0277bd',
+    colWidths: [220, 240]
+  },
+  {
     name: 'プロジェクト_ルーム紐付け',
     headers: ['project_id', 'room_id'],
     headerColor: '#37474f',
