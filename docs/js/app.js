@@ -43,7 +43,6 @@ var App = (function () {
       })
       .catch(function (err) {
         _showInitError(err.message);
-        _sendLog(err.message, 'init');
       });
   }
 
@@ -98,14 +97,6 @@ var App = (function () {
     }
     var spinner = document.getElementById('init-spinner');
     if (spinner) spinner.style.display = 'none';
-  }
-
-  function _sendLog(msg, ctx) {
-    try {
-      var url = Api.getUrl();
-      if (!url) return;
-      fetch(url + '?action=writeLog&msg=' + encodeURIComponent(msg) + '&ctx=' + encodeURIComponent(ctx || ''));
-    } catch (e) { /* 無視 */ }
   }
 
   // ── ユーザー情報アクセサ ───────────────────────

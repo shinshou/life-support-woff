@@ -41,28 +41,17 @@ var Api = (function () {
   function post(action, body) {
     var payload = Object.assign({ action: action }, body);
     var url = GAS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload));
-    _log('post送信', action + ' urlLen:' + url.length);
     _showOverlay();
     return fetch(url)
       .then(_handleResponse)
       .then(function (data) { _hideOverlay(); return data; })
-      .catch(function (err) {
-        _hideOverlay();
-        _log('post失敗', action + ':' + err.message);
-        throw err;
-      });
+      .catch(function (err) { _hideOverlay(); throw err; });
   }
 
   function _handleResponse(res) {
     return res.json().then(function (json) {
-      if (!json.success) {
-        _log('APIエラー', json.error);
-        throw new Error(json.error || 'APIエラーが発生しました');
-      }
+      if (!json.success) throw new Error(json.error || 'APIエラーが発生しました');
       return json.data;
-    }).catch(function (err) {
-      _log('レスポンスパース失敗', err.message);
-      throw err;
     });
   }
 
@@ -76,20 +65,12 @@ var Api = (function () {
     if (el) el.classList.remove('active');
   }
 
-  function _log(msg, ctx) {
-    if (!GAS_URL) return;
-    fetch(GAS_URL + '?action=writeLog&msg=' + encodeURIComponent(msg) + '&ctx=' + encodeURIComponent(ctx || '')).catch(function(){});
-  }
-
-  function logError(msg, ctx) { _log(msg, ctx); }
-
   function getUrl() { return GAS_URL; }
 
   return {
     setUrl: setUrl,
     getUrl: getUrl,
     get: get,
-    post: post,
-    logError: logError
+    post: post
   };
 })();
