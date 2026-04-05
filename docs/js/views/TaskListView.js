@@ -122,8 +122,9 @@ var TaskListView = (function () {
 
     var statusClass = 'badge-status-' + _statusKey(t.status);
 
+    var cardClass = t.status === '完了' ? 'card card-done' : 'card';
     return [
-      '<div class="card" data-task-id="' + _esc(t.task_id) + '">',
+      '<div class="' + cardClass + '" data-task-id="' + _esc(t.task_id) + '">',
       '  <div class="card-title">' + _esc(t.task_name) + '</div>',
       '  <div class="card-sub">',
       '    <span class="badge ' + statusClass + '">' + _esc(t.status) + '</span>',
