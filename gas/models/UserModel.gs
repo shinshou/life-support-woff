@@ -4,15 +4,12 @@
  */
 
 var UserModel = (function () {
-  var SHEET = '作成者管理';
-
   function getAll() {
-    return SpreadsheetUtil.getAllRows(SpreadsheetUtil.getSheet(SHEET));
+    return MemberModel.getAll();
   }
 
   function getByUserId(userId) {
-    var rows = SpreadsheetUtil.findRowsByField(SpreadsheetUtil.getSheet(SHEET), 'user_id', userId);
-    return rows.length > 0 ? rows[0] : null;
+    return MemberModel.getById(userId);
   }
 
   /**

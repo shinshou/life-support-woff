@@ -313,19 +313,13 @@ function showAddCreatorDialog() {
   var userId = result.getResponseText().trim();
   if (!userId) { ui.alert('ユーザーIDが入力されていません'); return; }
 
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName('作成者管理');
-  if (!sheet) { ui.alert('「作成者管理」シートが見つかりません。先にシートを初期化してください'); return; }
-
   // 重複チェック
-  var rows = sheet.getDataRange().getValues();
-  for (var i = 1; i < rows.length; i++) {
-    if (rows[i][0] === userId) {
-      ui.alert('このユーザーIDはすでに登録されています');
-      return;
-    }
+  var existing = UserModel.getByUserId(userId);
+  if (existing) {
+    ui.alert('このユーザーIDはすでに登録されています');
+    return;
   }
 
-  sheet.appendRow([userId, true]);
+  UserModel.create(userId, true);
   ui.alert('追加しました', 'ユーザーID「' + userId + '」をプロジェクト作成者として登録しました。', ui.ButtonSet.OK);
 }
