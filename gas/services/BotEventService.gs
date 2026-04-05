@@ -129,8 +129,11 @@ var BotEventService = (function () {
         }
       );
 
-      if (res.getResponseCode() !== 200) return null;
-      var data = JSON.parse(res.getContentText());
+      var code = res.getResponseCode();
+      var text = res.getContentText();
+      _writeLog('_fetchChannelName', 'code:' + code + ' body:' + text.substring(0, 300));
+      if (code !== 200) return null;
+      var data = JSON.parse(text);
       return data.title || data.channelName || data.name || null;
     } catch (e) {
       return null;
