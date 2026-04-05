@@ -7,7 +7,6 @@ var WoffClient = (function () {
   var _context = null;
   var _profile = null;
   var _roomId = null;
-  var _isOneOnOne = false;
 
   /**
    * WOFF SDK 初期化と認証情報の取得
@@ -30,18 +29,13 @@ var WoffClient = (function () {
       })
       .then(function (profile) {
         _profile = profile;
-        // _context.channelId が非空 = グループ、空 = 1:1
-        var contextChannelId = _context && _context.channelId;
-        return Promise.resolve(contextChannelId ? contextChannelId : woff.getChannelId())
-          .catch(function () { return null; })
+        return Promise.resolve(woff.getChannelId()).catch(function () { return null; })
           .then(function (channelId) {
             _roomId = channelId || ('user_' + profile.userId);
-            _isOneOnOne = !contextChannelId;
             return {
               userId: profile.userId,
               roomId: _roomId,
-              displayName: profile.displayName,
-              isOneOnOne: _isOneOnOne
+              displayName: profile.displayName
             };
           });
       });

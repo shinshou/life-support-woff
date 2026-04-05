@@ -15,13 +15,13 @@ var AuthService = (function () {
    * @param {string} [projectId]
    * @throws {Error} アクセス不可の場合
    */
-  function verifyAccess(userId, roomId, projectId, displayName, isOneOnOne) {
+  function verifyAccess(userId, roomId, projectId, displayName) {
     if (!roomId) return;
 
     var room = RoomModel.getById(roomId);
     if (!room) {
       try {
-        BotEventService.ensureRegistered(roomId, displayName, !!isOneOnOne, userId);
+        BotEventService.ensureRegistered(roomId, displayName);
       } catch (e) {
         _writeLog('ensureRegistered失敗', 'roomId:' + roomId + ' err:' + e.message);
       }

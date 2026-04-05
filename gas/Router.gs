@@ -17,8 +17,7 @@ var Router = (function () {
     try {
       switch (action) {
         case 'getProjects': {
-          var isOneOnOne = params.isOneOnOne === 'true';
-          AuthService.verifyAccess(params.userId, params.roomId, null, params.displayName, isOneOnOne);
+          AuthService.verifyAccess(params.userId, params.roomId, null, params.displayName);
           var isCreator = UserModel.canCreate(params.userId);
           var projectList = isCreator
             ? ProjectModel.getAll()

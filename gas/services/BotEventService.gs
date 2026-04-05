@@ -30,16 +30,18 @@ var BotEventService = (function () {
    * AuthService からも呼び出す
    * @param {string} channelId
    */
-  function ensureRegistered(channelId, displayName, isOneOnOne, userId) {
+  function ensureRegistered(channelId, displayName) {
     if (!channelId) return;
-    _writeLog('ensureRegistered呼出', 'channelId:' + channelId + ' displayName:' + (displayName || '') + ' isOneOnOne:' + !!isOneOnOne);
+    _writeLog('ensureRegistered呼出', 'channelId:' + channelId + ' displayName:' + (displayName || ''));
     try {
+      var isUser = channelId.indexOf('user_') === 0;
+
       // ── ルーム登録 ──────────────────────────────
       var existing = RoomModel.getById(channelId);
       if (existing) {
         _writeLog('ensureRegistered既存', 'room_name:' + existing.room_name);
         if (!existing.room_name || existing.room_name === channelId) {
-          var updatedName = isOneOnOne
+          var updatedName = isUser
             ? (displayName || '')
             : (_fetchChannelName(channelId) || '');
           if (updatedName && updatedName !== channelId) {
@@ -48,7 +50,7 @@ var BotEventService = (function () {
           }
         }
       } else {
-        var roomName = isOneOnOne
+        var roomName = isUser
           ? (displayName || channelId)
           : (_fetchChannelName(channelId) || channelId);
         _writeLog('ensureRegistered新規登録', 'roomName:' + roomName);
@@ -56,8 +58,9 @@ var BotEventService = (function () {
       }
 
       // ── メンバー保存 ─────────────────────────────
-      if (isOneOnOne) {
-        if (userId) MemberModel.upsert(userId, displayName || '');
+      if (isUser) {
+        var userId = channelId.slice('user_'.length);
+        MemberModel.upsert(userId, displayName || '');
       } else {
         _syncChannelMembers(channelId);
       }
@@ -129,11 +132,8 @@ var BotEventService = (function () {
         }
       );
 
-      var code = res.getResponseCode();
-      var text = res.getContentText();
-      _writeLog('_fetchChannelName', 'code:' + code + ' body:' + text.substring(0, 300));
-      if (code !== 200) return null;
-      var data = JSON.parse(text);
+      if (res.getResponseCode() !== 200) return null;
+      var data = JSON.parse(res.getContentText());
       return data.title || data.channelName || data.name || null;
     } catch (e) {
       return null;
