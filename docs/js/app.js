@@ -8,6 +8,7 @@ var App = (function () {
   var _roomId = '';
   var _displayName = '';
   var _canCreate = false;
+  var _isOneOnOne = false;
 
   var _currentPage = '';
   var _history = [];
@@ -33,7 +34,8 @@ var App = (function () {
         _userId = info.userId;
         _roomId = info.roomId;
         _displayName = info.displayName;
-        return Api.get('getProjects', { userId: _userId, roomId: _roomId, displayName: _displayName });
+        _isOneOnOne = !!info.isOneOnOne;
+        return Api.get('getProjects', { userId: _userId, roomId: _roomId, displayName: _displayName, isOneOnOne: _isOneOnOne });
       })
       .then(function (res) {
         var projects = Array.isArray(res) ? res : (res.projects || []);
@@ -111,6 +113,7 @@ var App = (function () {
   function getUserId()     { return _userId; }
   function getRoomId()     { return _roomId; }
   function getDisplayName(){ return _displayName; }
+  function isOneOnOne()    { return _isOneOnOne; }
   function canCreate()     { return _canCreate; }
   function setCanCreate(v) { _canCreate = !!v; }
 
@@ -122,6 +125,7 @@ var App = (function () {
     getUserId: getUserId,
     getRoomId: getRoomId,
     getDisplayName: getDisplayName,
+    isOneOnOne: isOneOnOne,
     canCreate: canCreate,
     setCanCreate: setCanCreate
   };

@@ -30,18 +30,16 @@ var BotEventService = (function () {
    * AuthService からも呼び出す
    * @param {string} channelId
    */
-  function ensureRegistered(channelId, displayName) {
+  function ensureRegistered(channelId, displayName, isOneOnOne, userId) {
     if (!channelId) return;
-    _writeLog('ensureRegistered呼出', 'channelId:' + channelId + ' displayName:' + (displayName || ''));
+    _writeLog('ensureRegistered呼出', 'channelId:' + channelId + ' displayName:' + (displayName || '') + ' isOneOnOne:' + !!isOneOnOne);
     try {
-      var isUser = channelId.indexOf('user_') === 0;
-
       // ── ルーム登録 ──────────────────────────────
       var existing = RoomModel.getById(channelId);
       if (existing) {
         _writeLog('ensureRegistered既存', 'room_name:' + existing.room_name);
         if (!existing.room_name || existing.room_name === channelId) {
-          var updatedName = isUser
+          var updatedName = isOneOnOne
             ? (displayName || '')
             : (_fetchChannelName(channelId) || '');
           if (updatedName && updatedName !== channelId) {
@@ -50,7 +48,7 @@ var BotEventService = (function () {
           }
         }
       } else {
-        var roomName = isUser
+        var roomName = isOneOnOne
           ? (displayName || channelId)
           : (_fetchChannelName(channelId) || channelId);
         _writeLog('ensureRegistered新規登録', 'roomName:' + roomName);
@@ -58,9 +56,8 @@ var BotEventService = (function () {
       }
 
       // ── メンバー保存 ─────────────────────────────
-      if (isUser) {
-        var userId = channelId.slice('user_'.length);
-        MemberModel.upsert(userId, displayName || '');
+      if (isOneOnOne) {
+        if (userId) MemberModel.upsert(userId, displayName || '');
       } else {
         _syncChannelMembers(channelId);
       }
