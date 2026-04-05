@@ -28,14 +28,11 @@ var WoffClient = (function () {
       })
       .then(function (profile) {
         _profile = profile;
-        // DEBUGコンテキスト確認用ログ（確認後削除）
-        if (window._debugGasUrl) {
-          var ctx = { type: _context.type, channelId: _context.channelId, roomId: _context.roomId, userId: _context.userId };
-          fetch(window._debugGasUrl + '?action=writeLog&msg=WOFFcontext&ctx=' + encodeURIComponent(JSON.stringify(ctx)));
-        }
+        var channelId = null;
+        try { channelId = woff.getChannelId(); } catch (e) {}
         return {
           userId: profile.userId,
-          roomId: _context.channelId || ('user_' + profile.userId),
+          roomId: channelId || ('user_' + profile.userId),
           displayName: profile.displayName
         };
       });
@@ -56,7 +53,9 @@ var WoffClient = (function () {
    */
   function getRoomId() {
     if (!_context) throw new Error('WoffClient が初期化されていません');
-    return _context.channelId || ('user_' + _profile.userId);
+    var channelId = null;
+    try { channelId = woff.getChannelId(); } catch (e) {}
+    return channelId || ('user_' + _profile.userId);
   }
 
   /**
