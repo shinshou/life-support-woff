@@ -32,24 +32,26 @@ var BotEventService = (function () {
    */
   function ensureRegistered(channelId, displayName) {
     if (!channelId) return;
+    _writeLog('ensureRegistered呼出', 'channelId:' + channelId + ' displayName:' + (displayName || ''));
     try {
       var existing = RoomModel.getById(channelId);
       if (existing) {
-        // 名前がプレースホルダー（channelIdそのもの or 空）なら更新
+        _writeLog('ensureRegistered既存', 'room_name:' + existing.room_name);
         if (!existing.room_name || existing.room_name === channelId) {
           var updatedName = channelId.indexOf('user_') === 0
             ? (displayName || '')
             : (_fetchChannelName(channelId) || '');
           if (updatedName && updatedName !== channelId) {
             RoomModel.update(channelId, { room_name: updatedName });
+            _writeLog('ensureRegistered名前更新', updatedName);
           }
         }
         return;
       }
-      // 新規登録
       var roomName = channelId.indexOf('user_') === 0
         ? (displayName || channelId)
         : (_fetchChannelName(channelId) || channelId);
+      _writeLog('ensureRegistered新規登録', 'roomName:' + roomName);
       RoomModel.create({ room_id: channelId, room_name: roomName });
     } catch (e) {
       _writeLog('ルーム自動登録エラー', 'channelId:' + channelId + ' err:' + e.message);
