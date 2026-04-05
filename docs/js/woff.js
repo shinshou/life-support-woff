@@ -31,7 +31,7 @@ var WoffClient = (function () {
         _profile = profile;
         return Promise.resolve(woff.getChannelId()).catch(function () { return null; })
           .then(function (channelId) {
-            _roomId = channelId || ('user_' + profile.userId);
+            _roomId = channelId || '';
             return {
               userId: profile.userId,
               roomId: _roomId,
@@ -55,7 +55,7 @@ var WoffClient = (function () {
    * @returns {string}
    */
   function getRoomId() {
-    if (!_roomId) throw new Error('WoffClient が初期化されていません');
+    if (_roomId === null) throw new Error('WoffClient が初期化されていません');
     return _roomId;
   }
 

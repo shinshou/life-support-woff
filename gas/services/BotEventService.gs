@@ -32,38 +32,23 @@ var BotEventService = (function () {
    */
   function ensureRegistered(channelId, displayName) {
     if (!channelId) return;
-    _writeLog('ensureRegistered呼出', 'channelId:' + channelId + ' displayName:' + (displayName || ''));
     try {
-      var isUser = channelId.indexOf('user_') === 0;
-
       // ── ルーム登録 ──────────────────────────────
       var existing = RoomModel.getById(channelId);
       if (existing) {
-        _writeLog('ensureRegistered既存', 'room_name:' + existing.room_name);
         if (!existing.room_name || existing.room_name === channelId) {
-          var updatedName = isUser
-            ? (displayName || '')
-            : (_fetchChannelName(channelId) || '');
+          var updatedName = _fetchChannelName(channelId) || '';
           if (updatedName && updatedName !== channelId) {
             RoomModel.update(channelId, { room_name: updatedName });
-            _writeLog('ensureRegistered名前更新', updatedName);
           }
         }
       } else {
-        var roomName = isUser
-          ? (displayName || channelId)
-          : (_fetchChannelName(channelId) || channelId);
-        _writeLog('ensureRegistered新規登録', 'roomName:' + roomName);
+        var roomName = _fetchChannelName(channelId) || channelId;
         RoomModel.create({ room_id: channelId, room_name: roomName });
       }
 
       // ── メンバー保存 ─────────────────────────────
-      if (isUser) {
-        var userId = channelId.slice('user_'.length);
-        MemberModel.upsert(userId, displayName || '');
-      } else {
-        _syncChannelMembers(channelId);
-      }
+      _syncChannelMembers(channelId);
     } catch (e) {
       _writeLog('ルーム自動登録エラー', 'channelId:' + channelId + ' err:' + e.message);
     }
