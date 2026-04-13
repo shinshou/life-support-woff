@@ -9,6 +9,53 @@ var TaskEditView = (function () {
   var _isNew = true;
   var _isDirty = false;
 
+  // ── localStorage 下書き ───────────────────────────
+
+  function _getDraftKey() {
+    return _isNew
+      ? 'draft_task_new_' + _project.project_id
+      : 'draft_task_' + _task.task_id;
+  }
+
+  function _saveDraft() {
+    try {
+      var draft = {
+        task_name:  document.getElementById('input-task-name').value,
+        assignee:   document.getElementById('input-task-assignee').value,
+        start_date: document.getElementById('input-task-start').value,
+        due_date:   document.getElementById('input-task-due').value,
+        status:     document.getElementById('select-task-status').value,
+        comment:    document.getElementById('input-task-comment').value,
+        savedAt:    new Date().toISOString()
+      };
+      localStorage.setItem(_getDraftKey(), JSON.stringify(draft));
+    } catch (e) { /* localStorage 使用不可環境では無視 */ }
+  }
+
+  function _loadDraft() {
+    try {
+      var raw = localStorage.getItem(_getDraftKey());
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function _clearDraft() {
+    try { localStorage.removeItem(_getDraftKey()); } catch (e) {}
+  }
+
+  function _applyDraft(draft) {
+    _val('input-task-name',    draft.task_name  || '');
+    _val('input-task-assignee',draft.assignee   || '');
+    _val('input-task-start',   draft.start_date || '');
+    _val('input-task-due',     draft.due_date   || '');
+    _val('select-task-status', draft.status     || '未着手');
+    _val('input-task-comment', draft.comment    || '');
+  }
+
+  // ── mount ─────────────────────────────────────────
+
   function mount(params) {
     _project = params.project;
     _task = params.task || null;
@@ -17,6 +64,7 @@ var TaskEditView = (function () {
 
     _renderHeader();
     _fillForm();
+    _checkDraft();
     _bindForm();
   }
 
@@ -24,10 +72,30 @@ var TaskEditView = (function () {
     return _isDirty;
   }
 
-  function _confirmLeave() {
-    if (!_isDirty) return true;
-    return confirm('編集中の内容が保存されていません。\nこのまま閉じますか？');
+  // ── 下書き確認 ────────────────────────────────────
+
+  function _checkDraft() {
+    var draft = _loadDraft();
+    if (!draft) return;
+
+    var savedAt = '';
+    if (draft.savedAt) {
+      try {
+        savedAt = new Date(draft.savedAt).toLocaleString('ja-JP');
+      } catch (e) {
+        savedAt = draft.savedAt;
+      }
+    }
+
+    if (confirm('前回（' + savedAt + '）の編集途中データがあります。\n復元しますか？')) {
+      _applyDraft(draft);
+      _isDirty = true;
+    } else {
+      _clearDraft();
+    }
   }
+
+  // ── ヘッダー ──────────────────────────────────────
 
   function _renderHeader() {
     var title = document.getElementById('task-edit-title');
@@ -41,11 +109,18 @@ var TaskEditView = (function () {
     }
   }
 
+  function _confirmLeave() {
+    if (!_isDirty) return true;
+    return confirm('編集中の内容が保存されていません。\nこのまま閉じますか？\n（下書きは次回開いたとき復元できます）');
+  }
+
+  // ── フォーム描画 ──────────────────────────────────
+
   function _fillForm() {
-    _val('input-task-name', _isNew ? '' : _task.task_name);
-    _val('input-task-assignee', _isNew ? '' : _task.assignee);
-    _val('input-task-start', _isNew ? '' : String(_task.start_date || '').slice(0, 10));
-    _val('input-task-due', _isNew ? '' : String(_task.due_date || '').slice(0, 10));
+    _val('input-task-name',    _isNew ? '' : _task.task_name);
+    _val('input-task-assignee',_isNew ? '' : _task.assignee);
+    _val('input-task-start',   _isNew ? '' : String(_task.start_date || '').slice(0, 10));
+    _val('input-task-due',     _isNew ? '' : String(_task.due_date   || '').slice(0, 10));
     _val('select-task-status', _isNew ? '未着手' : _task.status);
     _val('input-task-comment', _isNew ? '' : _task.comment);
 
@@ -63,8 +138,8 @@ var TaskEditView = (function () {
     var form = document.getElementById('form-task-edit');
     if (form) {
       form.onsubmit = function (e) { e.preventDefault(); _submit(); };
-      form.addEventListener('input', function () { _isDirty = true; });
-      form.addEventListener('change', function () { _isDirty = true; });
+      form.addEventListener('input',  function () { _isDirty = true; _saveDraft(); });
+      form.addEventListener('change', function () { _isDirty = true; _saveDraft(); });
     }
 
     var deleteBtn = document.getElementById('btn-delete-task');
@@ -74,6 +149,8 @@ var TaskEditView = (function () {
     if (defaultBtn) defaultBtn.onclick = _saveAsDefault;
   }
 
+  // ── 送信 ──────────────────────────────────────────
+
   function _submit() {
     var taskName = document.getElementById('input-task-name').value.trim();
     if (!taskName) {
@@ -82,15 +159,15 @@ var TaskEditView = (function () {
     }
 
     var data = {
-      userId: App.getUserId(),
-      roomId: App.getRoomId(),
-      projectId: _project.project_id,
-      task_name: taskName,
-      assignee: document.getElementById('input-task-assignee').value.trim(),
+      userId:     App.getUserId(),
+      roomId:     App.getRoomId(),
+      projectId:  _project.project_id,
+      task_name:  taskName,
+      assignee:   document.getElementById('input-task-assignee').value.trim(),
       start_date: document.getElementById('input-task-start').value,
-      due_date: document.getElementById('input-task-due').value,
-      status: document.getElementById('select-task-status').value,
-      comment: document.getElementById('input-task-comment').value.trim()
+      due_date:   document.getElementById('input-task-due').value,
+      status:     document.getElementById('select-task-status').value,
+      comment:    document.getElementById('input-task-comment').value.trim()
     };
 
     _setLoading(true);
@@ -107,6 +184,7 @@ var TaskEditView = (function () {
     promise
       .then(function () {
         _isDirty = false;
+        _clearDraft();
         _setLoading(false);
         _goBackToTaskList();
       })
@@ -121,28 +199,33 @@ var TaskEditView = (function () {
       });
   }
 
+  // ── 削除 ──────────────────────────────────────────
+
   function _deleteTask() {
     if (!confirm('このタスクを削除しますか？')) return;
 
     Api.post('deleteTask', {
-      userId: App.getUserId(),
-      roomId: App.getRoomId(),
+      userId:    App.getUserId(),
+      roomId:    App.getRoomId(),
       projectId: _project.project_id,
-      taskId: _task.task_id
+      taskId:    _task.task_id
     }).then(function () {
       _isDirty = false;
+      _clearDraft();
       _goBackToTaskList();
     }).catch(function (err) {
       _showError(err.message);
     });
   }
 
+  // ── デフォルトタスクとして保存 ────────────────────
+
   function _saveAsDefault() {
     var taskName = document.getElementById('input-task-name').value.trim();
     if (!taskName) { _showError('タスク名を入力してください'); return; }
 
     var startDate = document.getElementById('input-task-start').value;
-    var dueDate = document.getElementById('input-task-due').value;
+    var dueDate   = document.getElementById('input-task-due').value;
     var offsetDays = 0;
     if (startDate && dueDate) {
       var diff = (new Date(dueDate) - new Date(startDate)) / 86400000;
@@ -150,7 +233,7 @@ var TaskEditView = (function () {
     }
 
     Api.post('saveAsDefaultTask', {
-      task_name: taskName,
+      task_name:   taskName,
       offset_days: offsetDays
     }).then(function () {
       Cache.invalidate('defaultTasks');
@@ -160,10 +243,12 @@ var TaskEditView = (function () {
     });
   }
 
+  // ── タスク一覧へ戻る ──────────────────────────────
+
   function _goBackToTaskList() {
     Api.get('getTasks', {
-      userId: App.getUserId(),
-      roomId: App.getRoomId(),
+      userId:    App.getUserId(),
+      roomId:    App.getRoomId(),
       projectId: _project.project_id
     }).then(function (tasks) {
       App.navigate('task-list', { project: _project, tasks: tasks || [] });
@@ -171,6 +256,8 @@ var TaskEditView = (function () {
       App.navigate('task-list', { project: _project, tasks: [] });
     });
   }
+
+  // ── ユーティリティ ────────────────────────────────
 
   function _setLoading(flag) {
     var btn = document.getElementById('btn-save-task');
