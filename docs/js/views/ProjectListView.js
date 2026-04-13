@@ -96,10 +96,17 @@ var ProjectListView = (function () {
   }
 
   function _openRoomManage(project) {
-    Promise.all([
-      Api.get('getProjectRooms', { userId: App.getUserId(), roomId: App.getRoomId(), projectId: project.project_id }),
-      Api.get('getRooms', {})
-    ]).then(function (results) {
+    var projRoomsCacheKey = 'projectRooms_' + project.project_id;
+    var projRoomsPromise = Cache.has(projRoomsCacheKey)
+      ? Promise.resolve(Cache.get(projRoomsCacheKey))
+      : Api.get('getProjectRooms', { userId: App.getUserId(), roomId: App.getRoomId(), projectId: project.project_id });
+    var roomsPromise = Cache.has('rooms')
+      ? Promise.resolve(Cache.get('rooms'))
+      : Api.get('getRooms', {});
+
+    Promise.all([projRoomsPromise, roomsPromise]).then(function (results) {
+      Cache.set(projRoomsCacheKey, results[0] || []);
+      Cache.set('rooms', results[1] || []);
       App.navigate('project-room', { project: project, linkedRooms: results[0] || [], allRooms: results[1] || [] });
     }).catch(function (err) {
       alert('ルーム情報の取得に失敗しました: ' + err.message);
@@ -115,11 +122,22 @@ var ProjectListView = (function () {
     }
 
     fab.onclick = function () {
-      // デフォルトタスク一覧とルーム一覧を取得してから遷移
-      Promise.all([
-        Api.get('getDefaultTasks', {}),
-        Api.get('getRooms', {})
-      ]).then(function (results) {
+      var defaultTasks = Cache.has('defaultTasks') ? Cache.get('defaultTasks') : null;
+      var rooms = Cache.has('rooms') ? Cache.get('rooms') : null;
+
+      if (defaultTasks !== null && rooms !== null) {
+        App.navigate('project-create', { defaultTasks: defaultTasks, rooms: rooms });
+        return;
+      }
+
+      var promises = [
+        defaultTasks !== null ? Promise.resolve(defaultTasks) : Api.get('getDefaultTasks', {}),
+        rooms !== null ? Promise.resolve(rooms) : Api.get('getRooms', {})
+      ];
+
+      Promise.all(promises).then(function (results) {
+        if (defaultTasks === null) Cache.set('defaultTasks', results[0] || []);
+        if (rooms === null) Cache.set('rooms', results[1] || []);
         App.navigate('project-create', {
           defaultTasks: results[0] || [],
           rooms: results[1] || []

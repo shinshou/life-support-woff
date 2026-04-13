@@ -24,9 +24,23 @@ var ProjectRoomView = (function () {
     var backBtn = document.getElementById('btn-back-project-room');
     if (backBtn) {
       backBtn.onclick = function () {
-        Api.get('getProjects', { userId: App.getUserId(), roomId: App.getRoomId(), displayName: App.getDisplayName() })
+        if (Cache.has('projects')) {
+          App.navigate('project-list', {
+            projects: Cache.get('projects'),
+            canCreate: Cache.has('canCreate') ? Cache.get('canCreate') : false,
+            isAdmin: Cache.has('isAdmin') ? Cache.get('isAdmin') : false
+          });
+          return;
+        }
+        Api.get('getInitialData', { userId: App.getUserId(), roomId: App.getRoomId(), displayName: App.getDisplayName() })
           .then(function (res) {
-            App.navigate('project-list', { projects: res.projects || [], canCreate: res.canCreate });
+            var projects = res.projects || [];
+            var canCreate = !!res.canCreate;
+            var isAdmin = !!res.isAdmin;
+            Cache.set('projects', projects);
+            Cache.set('canCreate', canCreate);
+            Cache.set('isAdmin', isAdmin);
+            App.navigate('project-list', { projects: projects, canCreate: canCreate, isAdmin: isAdmin });
           });
       };
     }
@@ -119,12 +133,13 @@ var ProjectRoomView = (function () {
   }
 
   function _reload() {
-    return Promise.all([
-      Api.get('getProjectRooms', { userId: App.getUserId(), roomId: App.getRoomId(), projectId: _project.project_id }),
-      Api.get('getRooms', {})
-    ]).then(function (results) {
-      _linkedRooms = results[0] || [];
-      _allRooms = results[1] || [];
+    return Api.get('getProjectRooms', {
+      userId: App.getUserId(),
+      roomId: App.getRoomId(),
+      projectId: _project.project_id
+    }).then(function (result) {
+      _linkedRooms = result || [];
+      Cache.set('projectRooms_' + _project.project_id, _linkedRooms);
       _renderRooms();
     });
   }

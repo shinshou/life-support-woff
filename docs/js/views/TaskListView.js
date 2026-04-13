@@ -26,7 +26,12 @@ var TaskListView = (function () {
     var defaultBtn = document.getElementById('btn-add-default-tasks');
     if (defaultBtn) {
       defaultBtn.onclick = function () {
+        if (Cache.has('defaultTasks')) {
+          App.navigate('task-from-default', { project: _project, defaultTasks: Cache.get('defaultTasks') });
+          return;
+        }
         Api.get('getDefaultTasks', {}).then(function (defaultTasks) {
+          Cache.set('defaultTasks', defaultTasks || []);
           App.navigate('task-from-default', { project: _project, defaultTasks: defaultTasks || [] });
         }).catch(function (err) {
           alert('デフォルトタスク取得に失敗しました: ' + err.message);
@@ -37,11 +42,22 @@ var TaskListView = (function () {
     var backBtn = document.getElementById('btn-back-task-list');
     if (backBtn) {
       backBtn.onclick = function () {
+        if (Cache.has('projects')) {
+          App.navigate('project-list', {
+            projects: Cache.get('projects'),
+            canCreate: Cache.has('canCreate') ? Cache.get('canCreate') : false,
+            isAdmin: Cache.has('isAdmin') ? Cache.get('isAdmin') : false
+          });
+          return;
+        }
         Api.get('getInitialData', { userId: App.getUserId(), roomId: App.getRoomId(), displayName: App.getDisplayName() })
           .then(function (res) {
             var projects = res.projects || [];
             var canCreate = !!res.canCreate;
             var isAdmin = !!res.isAdmin;
+            Cache.set('projects', projects);
+            Cache.set('canCreate', canCreate);
+            Cache.set('isAdmin', isAdmin);
             App.navigate('project-list', { projects: projects, canCreate: canCreate, isAdmin: isAdmin });
           });
       };

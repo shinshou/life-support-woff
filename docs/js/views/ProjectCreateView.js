@@ -124,6 +124,10 @@ var ProjectCreateView = (function () {
       var projects = res.projects || [];
       var canCreate = !!res.canCreate;
       var isAdmin = !!res.isAdmin;
+      Cache.set('projects', projects);
+      Cache.set('defaultTasks', res.defaultTasks || []);
+      Cache.set('canCreate', canCreate);
+      Cache.set('isAdmin', isAdmin);
       App.setCanCreate(canCreate);
       App.navigate('project-list', { projects: projects, canCreate: canCreate, isAdmin: isAdmin });
     }).catch(function (err) {

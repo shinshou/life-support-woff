@@ -39,6 +39,10 @@ var App = (function () {
         var projects = res.projects || [];
         _canCreate = !!res.canCreate;
         var isAdmin = !!res.isAdmin;
+        Cache.set('projects', projects);
+        Cache.set('defaultTasks', res.defaultTasks || []);
+        Cache.set('canCreate', _canCreate);
+        Cache.set('isAdmin', isAdmin);
         navigate('project-list', { projects: projects, canCreate: _canCreate, isAdmin: isAdmin });
       })
       .catch(function (err) {

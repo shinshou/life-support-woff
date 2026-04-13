@@ -134,6 +134,7 @@ var TaskEditView = (function () {
       task_name: taskName,
       offset_days: offsetDays
     }).then(function () {
+      Cache.invalidate('defaultTasks');
       alert('デフォルトタスクとして保存しました（工数: ' + offsetDays + '日）');
     }).catch(function (err) {
       _showError(err.message);
