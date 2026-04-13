@@ -7,15 +7,26 @@ var TaskEditView = (function () {
   var _project = null;
   var _task = null;
   var _isNew = true;
+  var _isDirty = false;
 
   function mount(params) {
     _project = params.project;
     _task = params.task || null;
     _isNew = params.isNew !== false || !_task;
+    _isDirty = false;
 
     _renderHeader();
     _fillForm();
     _bindForm();
+  }
+
+  function isDirty() {
+    return _isDirty;
+  }
+
+  function _confirmLeave() {
+    if (!_isDirty) return true;
+    return confirm('編集中の内容が保存されていません。\nこのまま閉じますか？');
   }
 
   function _renderHeader() {
@@ -24,7 +35,9 @@ var TaskEditView = (function () {
 
     var backBtn = document.getElementById('btn-back-task-edit');
     if (backBtn) {
-      backBtn.onclick = function () { _goBackToTaskList(); };
+      backBtn.onclick = function () {
+        if (_confirmLeave()) _goBackToTaskList();
+      };
     }
   }
 
@@ -48,7 +61,11 @@ var TaskEditView = (function () {
 
   function _bindForm() {
     var form = document.getElementById('form-task-edit');
-    if (form) form.onsubmit = function (e) { e.preventDefault(); _submit(); };
+    if (form) {
+      form.onsubmit = function (e) { e.preventDefault(); _submit(); };
+      form.addEventListener('input', function () { _isDirty = true; });
+      form.addEventListener('change', function () { _isDirty = true; });
+    }
 
     var deleteBtn = document.getElementById('btn-delete-task');
     if (deleteBtn) deleteBtn.onclick = _deleteTask;
@@ -89,6 +106,7 @@ var TaskEditView = (function () {
 
     promise
       .then(function () {
+        _isDirty = false;
         _setLoading(false);
         _goBackToTaskList();
       })
@@ -112,6 +130,7 @@ var TaskEditView = (function () {
       projectId: _project.project_id,
       taskId: _task.task_id
     }).then(function () {
+      _isDirty = false;
       _goBackToTaskList();
     }).catch(function (err) {
       _showError(err.message);
@@ -173,5 +192,5 @@ var TaskEditView = (function () {
     if (el) el.value = value || '';
   }
 
-  return { mount: mount };
+  return { mount: mount, isDirty: isDirty };
 })();

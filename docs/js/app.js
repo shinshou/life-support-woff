@@ -110,6 +110,14 @@ var App = (function () {
   function canCreate()     { return _canCreate; }
   function setCanCreate(v) { _canCreate = !!v; }
 
+  // × ボタン（ネイティブ閉じる）で編集中なら確認ダイアログを表示
+  window.addEventListener('beforeunload', function (e) {
+    if (typeof TaskEditView !== 'undefined' && TaskEditView.isDirty()) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
   return {
     registerView: registerView,
     start: start,
