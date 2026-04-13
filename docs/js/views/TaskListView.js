@@ -37,11 +37,12 @@ var TaskListView = (function () {
     var backBtn = document.getElementById('btn-back-task-list');
     if (backBtn) {
       backBtn.onclick = function () {
-        Api.get('getProjects', { userId: App.getUserId(), roomId: App.getRoomId(), displayName: App.getDisplayName() })
+        Api.get('getInitialData', { userId: App.getUserId(), roomId: App.getRoomId(), displayName: App.getDisplayName() })
           .then(function (res) {
-            var projects = Array.isArray(res) ? res : (res.projects || []);
-            var canCreate = Array.isArray(res) ? false : !!res.canCreate;
-            App.navigate('project-list', { projects: projects, canCreate: canCreate });
+            var projects = res.projects || [];
+            var canCreate = !!res.canCreate;
+            var isAdmin = !!res.isAdmin;
+            App.navigate('project-list', { projects: projects, canCreate: canCreate, isAdmin: isAdmin });
           });
       };
     }

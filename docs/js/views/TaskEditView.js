@@ -83,6 +83,7 @@ var TaskEditView = (function () {
       promise = Api.post('createTask', data);
     } else {
       data.taskId = _task.task_id;
+      if (_task.updated_at) data.updated_at = _task.updated_at;
       promise = Api.post('updateTask', data);
     }
 
@@ -93,7 +94,12 @@ var TaskEditView = (function () {
       })
       .catch(function (err) {
         _setLoading(false);
-        _showError(err.message);
+        if (err.code === 409) {
+          alert(err.message);
+          _goBackToTaskList();
+        } else {
+          _showError(err.message);
+        }
       });
   }
 

@@ -33,12 +33,12 @@ var App = (function () {
         _userId = info.userId;
         _roomId = info.roomId;
         _displayName = info.displayName;
-        return Api.get('getProjects', { userId: _userId, roomId: _roomId, displayName: _displayName });
+        return Api.get('getInitialData', { userId: _userId, roomId: _roomId, displayName: _displayName });
       })
       .then(function (res) {
-        var projects = Array.isArray(res) ? res : (res.projects || []);
-        _canCreate = Array.isArray(res) ? false : !!res.canCreate;
-        var isAdmin = Array.isArray(res) ? false : !!res.isAdmin;
+        var projects = res.projects || [];
+        _canCreate = !!res.canCreate;
+        var isAdmin = !!res.isAdmin;
         navigate('project-list', { projects: projects, canCreate: _canCreate, isAdmin: isAdmin });
       })
       .catch(function (err) {

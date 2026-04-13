@@ -50,7 +50,11 @@ var Api = (function () {
 
   function _handleResponse(res) {
     return res.json().then(function (json) {
-      if (!json.success) throw new Error(json.error || 'APIエラーが発生しました');
+      if (!json.success) {
+        var err = new Error(json.error || 'APIエラーが発生しました');
+        err.code = json.code;
+        throw err;
+      }
       return json.data;
     });
   }

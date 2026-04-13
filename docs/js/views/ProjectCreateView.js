@@ -119,12 +119,13 @@ var ProjectCreateView = (function () {
       roomIds: roomIds,
       defaultTaskIds: defaultTaskIds
     }).then(function (data) {
-      return Api.get('getProjects', { userId: App.getUserId(), roomId: App.getRoomId(), displayName: App.getDisplayName() });
+      return Api.get('getInitialData', { userId: App.getUserId(), roomId: App.getRoomId(), displayName: App.getDisplayName() });
     }).then(function (res) {
-      var projects = Array.isArray(res) ? res : (res.projects || []);
-      var canCreate = Array.isArray(res) ? false : !!res.canCreate;
+      var projects = res.projects || [];
+      var canCreate = !!res.canCreate;
+      var isAdmin = !!res.isAdmin;
       App.setCanCreate(canCreate);
-      App.navigate('project-list', { projects: projects, canCreate: canCreate });
+      App.navigate('project-list', { projects: projects, canCreate: canCreate, isAdmin: isAdmin });
     }).catch(function (err) {
       _setLoading(false);
       _showError(err.message);
