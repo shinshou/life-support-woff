@@ -1,0 +1,85 @@
+/**
+ * MemberModel.gs
+ * ユーザー CRUD
+ */
+
+var MemberModel = (function () {
+  var SHEET = 'ユーザー';
+
+  function getAll() {
+    return SpreadsheetUtil.getAllRows(SpreadsheetUtil.getSheet(SHEET));
+  }
+
+  function getById(userId) {
+    var rows = SpreadsheetUtil.findRowsByField(SpreadsheetUtil.getSheet(SHEET), 'user_id', userId);
+    return rows.length > 0 ? rows[0] : null;
+  }
+
+  /**
+   * @param {{user_id:string, display_name:string}} data
+   */
+  function create(data) {
+    SpreadsheetUtil.appendRow(SpreadsheetUtil.getSheet(SHEET), {
+      user_id: data.user_id,
+      display_name: data.display_name
+    });
+  }
+
+  function update(userId, data) {
+    SpreadsheetUtil.updateRowById(SpreadsheetUtil.getSheet(SHEET), 'user_id', userId, data);
+  }
+
+  /**
+   * 未登録なら追加、登録済みで表示名が変わっていれば更新
+   * @param {string} userId
+   * @param {string} displayName
+   */
+  function upsert(userId, displayName) {
+    if (!userId) return;
+    var existing = getById(userId);
+    if (!existing) {
+      create({ user_id: userId, display_name: displayName || '' });
+    } else if (displayName && existing.display_name !== displayName) {
+      update(userId, { display_name: displayName });
+    }
+  }
+
+  /**
+   * @param {string} userId
+   * @returns {boolean}
+   */
+  function isAdmin(userId) {
+    var row = getById(userId);
+    if (!row) return false;
+    return row['is_admin'] === true || row['is_admin'] === 'TRUE';
+  }
+
+  /**
+   * @param {string} userId
+   * @returns {boolean}
+   */
+  function canCreate(userId) {
+    var row = getById(userId);
+    if (!row) return false;
+    return row['can_create'] === true || row['can_create'] === 'TRUE';
+  }
+
+  /**
+   * @param {string} userId
+   * @param {boolean} flag
+   */
+  function setCanCreate(userId, flag) {
+    SpreadsheetUtil.updateRowById(SpreadsheetUtil.getSheet(SHEET), 'user_id', userId, { can_create: flag ? true : false });
+  }
+
+  return {
+    getAll: getAll,
+    getById: getById,
+    create: create,
+    update: update,
+    upsert: upsert,
+    isAdmin: isAdmin,
+    canCreate: canCreate,
+    setCanCreate: setCanCreate
+  };
+})();
