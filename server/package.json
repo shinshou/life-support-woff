@@ -1,0 +1,18 @@
+{
+  "name": "life-support-woff-server",
+  "version": "1.0.0",
+  "description": "life-support-woff Cloud Run backend",
+  "main": "index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "googleapis": "^144.0.0",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
