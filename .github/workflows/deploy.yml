@@ -26,8 +26,8 @@ jobs:
       - name: Generate config.js
         run: |
           cat > docs/js/config.js <<EOF
-          var WOFF_ID = '${{ secrets.WOFF_ID }}';
-          var GAS_URL = '${{ secrets.GAS_URL }}';
+          var WOFF_ID    = '${{ secrets.WOFF_ID }}';
+          var SERVER_URL = 'https://life-support-woff-server-688658646661.asia-northeast1.run.app';
           EOF
 
       - uses: actions/configure-pages@v4
