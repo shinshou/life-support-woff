@@ -34,6 +34,19 @@ const handleGet = wrap(async (req, res) => {
   const action = params.action;
   try {
     switch (action) {
+      case 'getInitialData': {
+        await AuthService.verifyAccess(params.userId, params.roomId, null, params.displayName);
+        const [isCreator, isAdmin] = await Promise.all([
+          UserModel.canCreate(params.userId),
+          MemberModel.isAdmin(params.userId),
+        ]);
+        const projects = isCreator
+          ? await ProjectModel.getAll()
+          : await ProjectService.getProjects(params.roomId);
+        const defaultTasks = await DefaultTaskModel.getAll();
+        return res.json(ResponseUtil.success({ projects, defaultTasks, canCreate: isCreator, isAdmin }));
+      }
+
       case 'getProjects': {
         await AuthService.verifyAccess(params.userId, params.roomId, null, params.displayName);
         const [isCreator, isAdmin] = await Promise.all([
