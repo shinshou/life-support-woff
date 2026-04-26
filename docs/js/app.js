@@ -28,6 +28,19 @@ var App = (function () {
   function start(woffId, gasUrl) {
     Api.setUrl(gasUrl);
 
+    // Android 戻るボタンを横取りして SPA 内遷移 or 終了確認に使う
+    history.pushState(null, '');
+    window.addEventListener('popstate', function () {
+      history.pushState(null, '');
+      if (_history.length > 0) {
+        back();
+      } else {
+        if (confirm('アプリを終了しますか？')) {
+          WoffClient.close();
+        }
+      }
+    });
+
     WoffClient.init(woffId)
       .then(function (info) {
         _userId = info.userId;
