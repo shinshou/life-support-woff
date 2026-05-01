@@ -35,9 +35,7 @@ var App = (function () {
       if (_history.length > 0) {
         back();
       } else {
-        if (confirm('アプリを終了しますか？')) {
-          WoffClient.close();
-        }
+        _showExitDialog();
       }
     });
 
@@ -104,6 +102,22 @@ var App = (function () {
     }
 
     window.scrollTo(0, 0);
+  }
+
+  function _showExitDialog() {
+    var dialog = document.getElementById('exit-confirm-dialog');
+    if (!dialog) {
+      if (confirm('アプリを終了しますか？')) WoffClient.close();
+      return;
+    }
+    dialog.style.display = 'flex';
+    document.getElementById('btn-exit-confirm').onclick = function () {
+      dialog.style.display = 'none';
+      WoffClient.close();
+    };
+    document.getElementById('btn-exit-cancel').onclick = function () {
+      dialog.style.display = 'none';
+    };
   }
 
   function _showInitError(msg) {

@@ -64,6 +64,61 @@
 }
 
 /* =======================================
+   モーダルダイアログ
+======================================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-box {
+  background: var(--color-white);
+  border-radius: var(--radius);
+  padding: 24px 20px 16px;
+  width: 280px;
+  max-width: 90vw;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.modal-message {
+  font-size: 15px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--color-text);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.modal-btn-cancel {
+  background: var(--color-bg);
+  color: var(--color-text-sub);
+}
+
+.modal-btn-confirm {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+/* =======================================
    リセット・基本設定
 ======================================= */
 *, *::before, *::after {
