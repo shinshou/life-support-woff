@@ -107,6 +107,7 @@
     <button class="header-back-btn" id="btn-back-task-list" aria-label="戻る">‹</button>
     <span class="header-title" id="task-list-title"></span>
     <button class="header-action-btn" id="btn-add-default-tasks">デフォルトタスク</button>
+    <button class="header-select-btn" id="btn-task-select-mode">選択</button>
   </header>
 
   <div class="filter-tabs">
@@ -114,6 +115,16 @@
     <button class="filter-tab" data-filter="pending">未着手</button>
     <button class="filter-tab" data-filter="progress">進行中</button>
     <button class="filter-tab" data-filter="done">完了</button>
+  </div>
+
+  <div class="task-select-bar" id="task-select-bar" style="display:none;">
+    <label class="select-all-label">
+      <input type="checkbox" id="chk-task-select-all">
+      <span>全選択</span>
+    </label>
+    <span id="task-select-count" class="select-count-text">0件選択中</span>
+    <button class="btn-bulk-delete" id="btn-bulk-delete-tasks" disabled>削除</button>
+    <button class="btn-cancel-select" id="btn-cancel-task-select">キャンセル</button>
   </div>
 
   <div class="container" id="task-list-container" style="margin-top:8px;">

@@ -31,6 +31,10 @@ async function deleteTask(taskId) {
   await TaskModel.deleteById(taskId);
 }
 
+async function deleteTasks(taskIds) {
+  await TaskModel.deleteByIds(taskIds);
+}
+
 async function createDefaultTasks(projectId, startDate, selectedDefaultTaskIds) {
   for (const id of selectedDefaultTaskIds) {
     const defaultTask = await DefaultTaskModel.getById(id);
@@ -47,4 +51,4 @@ async function createDefaultTasks(projectId, startDate, selectedDefaultTaskIds) 
   }
 }
 
-module.exports = { getTasks, createTask, updateTask, deleteTask, createDefaultTasks };
+module.exports = { getTasks, createTask, updateTask, deleteTask, deleteTasks, createDefaultTasks };

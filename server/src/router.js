@@ -145,6 +145,14 @@ async function _handleWrite(ctx, res) {
         await TaskService.deleteTask(ctx.taskId);
         return res.json(ResponseUtil.success(null));
 
+      case 'deleteTasks':
+        await AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);
+        if (!Array.isArray(ctx.taskIds) || ctx.taskIds.length === 0) {
+          return res.json(ResponseUtil.error('taskIdsが空です'));
+        }
+        await TaskService.deleteTasks(ctx.taskIds);
+        return res.json(ResponseUtil.success(null));
+
       case 'createDefaultTasks':
         await AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);
         await TaskService.createDefaultTasks(ctx.projectId, ctx.start_date, ctx.defaultTaskIds);

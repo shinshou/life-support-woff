@@ -45,6 +45,18 @@ async function deleteById(taskId) {
   await ss.deleteRow(SHEET, row._rowIndex);
 }
 
+async function deleteByIds(taskIds) {
+  const rows = [];
+  for (const taskId of taskIds) {
+    const row = await getById(taskId);
+    if (row) rows.push(row);
+  }
+  rows.sort((a, b) => b._rowIndex - a._rowIndex);
+  for (const row of rows) {
+    await ss.deleteRow(SHEET, row._rowIndex);
+  }
+}
+
 async function deleteByProjectId(projectId) {
   const rows = (await getByProjectId(projectId))
     .sort((a, b) => b._rowIndex - a._rowIndex);
@@ -79,6 +91,6 @@ async function getTasksDueSoon(today, days) {
 
 module.exports = {
   getByProjectId, getById, getAll, create, update,
-  deleteById, deleteByProjectId,
+  deleteById, deleteByIds, deleteByProjectId,
   getOverdueTasks, getTasksDueToday, getTasksStartingToday, getTasksDueSoon,
 };
