@@ -196,9 +196,25 @@ var TaskListView = (function () {
   }
 
   function _getFilteredTasks() {
-    return _filter === 'all'
-      ? _tasks
+    var tasks = _filter === 'all'
+      ? _tasks.slice()
       : _tasks.filter(function (t) { return _statusKey(t.status) === _filter; });
+
+    return tasks.sort(function (a, b) {
+      var aKey = _sortKey(a);
+      var bKey = _sortKey(b);
+      if (aKey < bKey) return -1;
+      if (aKey > bKey) return 1;
+      return 0;
+    });
+  }
+
+  // ソートキー: 完了→末尾、期日なし→完了の手前、期日あり→昇順
+  function _sortKey(t) {
+    if (t.status === '完了') return '3_';
+    var due = t.due_date ? String(t.due_date).slice(0, 10) : '';
+    if (!due) return '2_';
+    return '1_' + due;
   }
 
   function _renderTasks() {
