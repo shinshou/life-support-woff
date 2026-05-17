@@ -166,6 +166,11 @@ async function _handleWrite(ctx, res) {
           }),
         }));
 
+      case 'deleteDefaultTask':
+        await AuthService.requireCreatePermission(ctx.userId);
+        await DefaultTaskModel.deleteById(ctx.defaultTaskId);
+        return res.json(ResponseUtil.success(null));
+
       case 'setCreator': {
         await AuthService.verifyAccess(ctx.userId, ctx.roomId);
         if (!(await MemberModel.isAdmin(ctx.userId))) throw new Error('管理者権限がありません');

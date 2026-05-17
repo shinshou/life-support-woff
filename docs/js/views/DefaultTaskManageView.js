@@ -65,10 +65,13 @@ var DefaultTaskManageView = (function () {
       roomId: App.getRoomId(),
       defaultTaskId: defaultTaskId
     }).then(function () {
-      _defaultTasks = _defaultTasks.filter(function (dt) { return dt.default_task_id !== defaultTaskId; });
+      _defaultTasks = _defaultTasks.filter(function (dt) {
+        return String(dt.default_task_id) !== String(defaultTaskId);
+      });
       Cache.set('defaultTasks', _defaultTasks);
       _render();
     }).catch(function (err) {
+      alert('削除に失敗しました: ' + err.message);
       if (errorEl) {
         errorEl.textContent = err.message;
         errorEl.style.display = 'block';
