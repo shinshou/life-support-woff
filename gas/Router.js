@@ -140,6 +140,12 @@ var Router = (function () {
             })
           });
 
+        case 'deleteDefaultTask':
+          AuthService.verifyAccess(ctx.userId, ctx.roomId);
+          AuthService.requireCreatePermission(ctx.userId);
+          DefaultTaskModel.deleteById(ctx.defaultTaskId);
+          return ResponseUtil.success(null);
+
         // ── 管理者：作成者設定 ────────────────────────
         case 'setCreator': {
           AuthService.verifyAccess(ctx.userId, ctx.roomId);
@@ -251,6 +257,12 @@ var Router = (function () {
 
         case 'saveAsDefaultTask':
           return ResponseUtil.success({ default_task_id: DefaultTaskModel.create({ task_name: ctx.task_name, offset_days: ctx.offset_days }) });
+
+        case 'deleteDefaultTask':
+          AuthService.verifyAccess(ctx.userId, ctx.roomId);
+          AuthService.requireCreatePermission(ctx.userId);
+          DefaultTaskModel.deleteById(ctx.defaultTaskId);
+          return ResponseUtil.success(null);
 
         case 'linkRoom':
           AuthService.verifyAccess(ctx.userId, ctx.roomId, ctx.projectId);

@@ -5,13 +5,14 @@
 
 var ProjectListView = (function () {
   var _canCreate = false;
+  var _projects = [];
 
   function mount(params) {
-    var projects = params.projects || [];
+    _projects = params.projects || [];
     _canCreate = !!params.canCreate;
 
     _renderHeader(!!params.isAdmin);
-    _renderList(projects);
+    _renderList(_projects);
     _renderFab();
   }
 
@@ -20,8 +21,30 @@ var ProjectListView = (function () {
     if (!header) return;
     header.querySelector('.header-title').textContent = 'タスク管理';
 
-    var existing = document.getElementById('btn-admin');
-    if (existing) existing.remove();
+    var existingDt = document.getElementById('btn-default-task-manage');
+    if (existingDt) existingDt.remove();
+    var existingAdmin = document.getElementById('btn-admin');
+    if (existingAdmin) existingAdmin.remove();
+
+    if (_canCreate) {
+      var dtBtn = document.createElement('button');
+      dtBtn.id = 'btn-default-task-manage';
+      dtBtn.className = 'header-action-btn';
+      dtBtn.textContent = 'デフォルトタスク';
+      dtBtn.onclick = function () {
+        if (Cache.has('defaultTasks')) {
+          App.navigate('default-task-manage', { defaultTasks: Cache.get('defaultTasks') });
+          return;
+        }
+        Api.get('getDefaultTasks', {}).then(function (tasks) {
+          Cache.set('defaultTasks', tasks || []);
+          App.navigate('default-task-manage', { defaultTasks: tasks || [] });
+        }).catch(function (err) {
+          alert('デフォルトタスク取得に失敗しました: ' + err.message);
+        });
+      };
+      header.appendChild(dtBtn);
+    }
 
     if (isAdmin) {
       var btn = document.createElement('button');
@@ -60,8 +83,9 @@ var ProjectListView = (function () {
     container.querySelectorAll('.card[data-project-id]').forEach(function (el) {
       el.addEventListener('click', function (e) {
         if (e.target.classList.contains('btn-manage-rooms')) return;
+        if (e.target.classList.contains('btn-delete-project')) return;
         var projectId = el.dataset.projectId;
-        var project = projects.find(function (p) { return p.project_id === projectId; });
+        var project = _projects.find(function (p) { return p.project_id === projectId; });
         _openTaskList(project);
       });
     });
@@ -71,17 +95,44 @@ var ProjectListView = (function () {
         btn.addEventListener('click', function (e) {
           e.stopPropagation();
           var projectId = btn.dataset.projectId;
-          var project = projects.find(function (p) { return p.project_id === projectId; });
+          var project = _projects.find(function (p) { return p.project_id === projectId; });
           _openRoomManage(project);
+        });
+      });
+
+      container.querySelectorAll('.btn-delete-project').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var projectId = btn.dataset.projectId;
+          var project = _projects.find(function (p) { return p.project_id === projectId; });
+          App.showDeleteConfirm(
+            '「' + (project ? project.project_name : '') + '」とすべてのタスクを削除しますか？',
+            function () { _deleteProject(projectId); }
+          );
         });
       });
     }
   }
 
+  function _deleteProject(projectId) {
+    Api.post('deleteProject', {
+      userId: App.getUserId(),
+      roomId: App.getRoomId(),
+      projectId: projectId
+    }).then(function () {
+      _projects = _projects.filter(function (p) { return p.project_id !== projectId; });
+      Cache.set('projects', _projects);
+      _renderList(_projects);
+    }).catch(function (err) {
+      alert('削除に失敗しました: ' + err.message);
+    });
+  }
+
   function _buildProjectCard(p) {
     var startDate = p.start_date ? String(p.start_date).slice(0, 10) : '—';
-    var manageBtn = _canCreate
-      ? '<button class="btn-manage-rooms" data-project-id="' + _esc(p.project_id) + '">ルーム管理</button>'
+    var actionBtns = _canCreate
+      ? '<button class="btn-manage-rooms" data-project-id="' + _esc(p.project_id) + '">ルーム管理</button>' +
+        '<button class="btn-delete-project" data-project-id="' + _esc(p.project_id) + '">削除</button>'
       : '';
     return [
       '<div class="card" data-project-id="' + _esc(p.project_id) + '">',
@@ -90,12 +141,13 @@ var ProjectListView = (function () {
       '    <span class="badge badge-type">' + _esc(p.project_type) + '</span>',
       '    <span>開始: ' + _esc(startDate) + '</span>',
       '  </div>',
-      manageBtn,
+      actionBtns,
       '</div>'
     ].join('');
   }
 
   function _openRoomManage(project) {
+    if (!project) return;
     var projRoomsCacheKey = 'projectRooms_' + project.project_id;
     var projRoomsPromise = Cache.has(projRoomsCacheKey)
       ? Promise.resolve(Cache.get(projRoomsCacheKey))

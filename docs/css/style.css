@@ -584,6 +584,30 @@ body {
   cursor: pointer;
 }
 
+.btn-delete-project {
+  display: inline-block;
+  margin-top: 8px;
+  margin-left: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--color-danger);
+  background: transparent;
+  border: 1px solid var(--color-danger);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-delete-default-task {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--color-danger);
+  background: transparent;
+  border: 1px solid var(--color-danger);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 .room-item {
   display: flex;
   align-items: center;

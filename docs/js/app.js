@@ -130,6 +130,29 @@ var App = (function () {
     if (spinner) spinner.style.display = 'none';
   }
 
+  /**
+   * 削除確認ダイアログを表示する
+   * @param {string} message
+   * @param {function} onConfirm
+   */
+  function showDeleteConfirm(message, onConfirm) {
+    var dialog = document.getElementById('delete-confirm-dialog');
+    if (!dialog) {
+      if (confirm(message)) onConfirm();
+      return;
+    }
+    var msgEl = document.getElementById('delete-confirm-message');
+    if (msgEl) msgEl.textContent = message;
+    dialog.style.display = 'flex';
+    document.getElementById('btn-delete-confirm').onclick = function () {
+      dialog.style.display = 'none';
+      onConfirm();
+    };
+    document.getElementById('btn-delete-cancel').onclick = function () {
+      dialog.style.display = 'none';
+    };
+  }
+
   // ── ユーザー情報アクセサ ───────────────────────
   function getUserId()     { return _userId; }
   function getRoomId()     { return _roomId; }
@@ -154,6 +177,7 @@ var App = (function () {
     getRoomId: getRoomId,
     getDisplayName: getDisplayName,
     canCreate: canCreate,
-    setCanCreate: setCanCreate
+    setCanCreate: setCanCreate,
+    showDeleteConfirm: showDeleteConfirm
   };
 })();
