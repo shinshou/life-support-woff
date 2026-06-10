@@ -38,64 +38,87 @@ async function getAccessToken() {
   return data.access_token;
 }
 
-async function _postToRoom(roomId, message) {
+function _resolveMessageUrl(roomId) {
+  const botId = process.env.LINEWORKS_BOT_ID;
+  if (roomId.startsWith('user_')) {
+    const userId = roomId.slice('user_'.length);
+    return `https://www.worksapis.com/v1.0/bots/${botId}/users/${userId}/messages`;
+  }
+  return `https://www.worksapis.com/v1.0/bots/${botId}/channels/${roomId}/messages`;
+}
+
+async function _sendContent(roomId, content) {
   try {
-    const botId = process.env.LINEWORKS_BOT_ID;
     const token = await getAccessToken();
-    let url;
-    if (roomId.startsWith('user_')) {
-      const userId = roomId.slice('user_'.length);
-      url = `https://www.worksapis.com/v1.0/bots/${botId}/users/${userId}/messages`;
-    } else {
-      url = `https://www.worksapis.com/v1.0/bots/${botId}/channels/${roomId}/messages`;
-    }
-    await fetch(url, {
+    await fetch(_resolveMessageUrl(roomId), {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: { type: 'text', text: message } }),
+      body: JSON.stringify({ content }),
     });
   } catch (e) {
     console.error('通知送信エラー roomId=' + roomId, e);
   }
 }
 
+async function postToRoom(roomId, message) {
+  await _sendContent(roomId, { type: 'text', text: message });
+}
+
 async function _notifyProjectRooms(task, message) {
   const roomIds = await ProjectRoomModel.getRoomIdsByProjectId(task.project_id);
-  await Promise.all(roomIds.map(roomId => _postToRoom(roomId, message)));
+  await Promise.all(roomIds.map(roomId => postToRoom(roomId, message)));
+}
+
+async function _notifyProjectRoomsWithCompleteButton(task, message) {
+  const roomIds = await ProjectRoomModel.getRoomIdsByProjectId(task.project_id);
+  const content = {
+    type: 'button_template',
+    contentText: message,
+    actions: [
+      { type: 'message', label: '完了にする', postback: `complete_task:${task.task_id}` },
+    ],
+  };
+  await Promise.all(roomIds.map(roomId => _sendContent(roomId, content)));
+}
+
+async function _getProjectName(task) {
+  const project = await ProjectModel.getById(task.project_id);
+  return project ? project.project_name : task.project_id;
 }
 
 async function sendStartToday(task) {
-  const project = await ProjectModel.getById(task.project_id);
-  const projectName = project ? project.project_name : task.project_id;
-  await _notifyProjectRooms(task,
+  const projectName = await _getProjectName(task);
+  await _notifyProjectRoomsWithCompleteButton(task,
     `[本日開始] ${task.task_name}（${projectName}）\n担当: ${task.assignee || '未設定'}`
   );
 }
 
 async function sendTaskComplete(task) {
-  const project = await ProjectModel.getById(task.project_id);
-  const projectName = project ? project.project_name : task.project_id;
+  const projectName = await _getProjectName(task);
   await _notifyProjectRooms(task,
     `[完了] ${task.task_name}（${projectName}）\n担当: ${task.assignee || '未設定'}`
   );
 }
 
 async function sendDueToday(task) {
-  await _notifyProjectRooms(task,
-    `[本日期限] ${task.task_name}\n担当: ${task.assignee || '未設定'}　期日: ${task.due_date}`
+  const projectName = await _getProjectName(task);
+  await _notifyProjectRoomsWithCompleteButton(task,
+    `[本日期限] ${task.task_name}（${projectName}）\n担当: ${task.assignee || '未設定'}　期日: ${task.due_date}`
   );
 }
 
 async function sendDueSoon(task, daysLeft) {
-  await _notifyProjectRooms(task,
-    `[期限${daysLeft}日前] ${task.task_name}\n担当: ${task.assignee || '未設定'}　期日: ${task.due_date}`
+  const projectName = await _getProjectName(task);
+  await _notifyProjectRoomsWithCompleteButton(task,
+    `[期限${daysLeft}日前] ${task.task_name}（${projectName}）\n担当: ${task.assignee || '未設定'}　期日: ${task.due_date}`
   );
 }
 
 async function sendOverdue(task) {
-  await _notifyProjectRooms(task,
-    `[期限超過] ${task.task_name}\n担当: ${task.assignee || '未設定'}　期日: ${task.due_date}`
+  const projectName = await _getProjectName(task);
+  await _notifyProjectRoomsWithCompleteButton(task,
+    `[期限超過] ${task.task_name}（${projectName}）\n担当: ${task.assignee || '未設定'}　期日: ${task.due_date}`
   );
 }
 
-module.exports = { getAccessToken, sendStartToday, sendTaskComplete, sendDueToday, sendDueSoon, sendOverdue };
+module.exports = { getAccessToken, sendStartToday, sendTaskComplete, sendDueToday, sendDueSoon, sendOverdue, postToRoom };

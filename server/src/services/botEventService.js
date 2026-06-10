@@ -2,6 +2,8 @@
 
 const RoomModel = require('../models/roomModel');
 const MemberModel = require('../models/memberModel');
+const TaskModel = require('../models/taskModel');
+const TaskService = require('./taskService');
 const NotificationService = require('./notificationService');
 
 async function handleEvent(event) {
@@ -9,6 +11,34 @@ async function handleEvent(event) {
   const channelId = (event.source && event.source.channelId) || event.channelId;
   if (type === 'joined' && channelId) {
     await _onJoined(channelId);
+  } else if (type === 'postback') {
+    await _onPostback(event);
+  }
+}
+
+async function _onPostback(event) {
+  const data = event.data || '';
+  const match = /^complete_task:(.+)$/.exec(data);
+  if (!match) return;
+  await _completeTask(match[1], event.source || {});
+}
+
+async function _completeTask(taskId, source) {
+  const roomId = source.channelId || (source.userId ? `user_${source.userId}` : null);
+  try {
+    const task = await TaskModel.getById(taskId);
+    if (!task) {
+      if (roomId) await NotificationService.postToRoom(roomId, '⚠️ タスクが見つかりません（削除済みの可能性があります）');
+      return;
+    }
+    if (task.status === '完了') {
+      if (roomId) await NotificationService.postToRoom(roomId, `「${task.task_name}」は既に完了しています`);
+      return;
+    }
+    await TaskService.updateTask(taskId, { status: '完了' });
+  } catch (e) {
+    if (roomId) await NotificationService.postToRoom(roomId, '⚠️ タスクの更新に失敗しました');
+    console.error('タスク完了postbackエラー taskId=' + taskId, e);
   }
 }
 

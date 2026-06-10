@@ -14,6 +14,43 @@ var BotEventService = (function () {
     var channelId = event.source && event.source.channelId || event.channelId;
     if (type === 'joined' && channelId) {
       _onJoined(channelId);
+    } else if (type === 'postback') {
+      _onPostback(event);
+    }
+  }
+
+  /**
+   * ボタンタップ時のPostbackイベント処理
+   * @param {Object} event
+   */
+  function _onPostback(event) {
+    var data = event.data || '';
+    var match = /^complete_task:(.+)$/.exec(data);
+    if (!match) return;
+    _completeTask(match[1], event.source || {});
+  }
+
+  /**
+   * 通知のボタンからタスクを完了にする
+   * @param {string} taskId
+   * @param {Object} source - event.source（userId, channelId）
+   */
+  function _completeTask(taskId, source) {
+    var roomId = source.channelId || (source.userId ? 'user_' + source.userId : null);
+    try {
+      var task = TaskModel.getById(taskId);
+      if (!task) {
+        if (roomId) NotificationService.postToRoom(roomId, '⚠️ タスクが見つかりません（削除済みの可能性があります）');
+        return;
+      }
+      if (task.status === '完了') {
+        if (roomId) NotificationService.postToRoom(roomId, '「' + task.task_name + '」は既に完了しています');
+        return;
+      }
+      TaskService.updateTask(taskId, { status: '完了' });
+    } catch (e) {
+      if (roomId) NotificationService.postToRoom(roomId, '⚠️ タスクの更新に失敗しました');
+      _writeLog('タスク完了postbackエラー', 'taskId:' + taskId + ' err:' + e.message);
     }
   }
 

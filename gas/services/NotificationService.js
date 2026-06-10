@@ -68,37 +68,50 @@ var NotificationService = (function () {
   }
 
   /**
-   * 指定ルームにメッセージを送信
+   * メッセージ送信先URLを解決
    * @param {string} roomId
-   * @param {string} message
+   * @returns {string}
    */
-  function _postToRoom(roomId, message) {
+  function _resolveMessageUrl(roomId) {
+    var botId = props.getProperty('LINEWORKS_BOT_ID');
+    if (roomId.indexOf('user_') === 0) {
+      // 1:1トーク用仮想ルーム → userId を取り出してユーザー宛API
+      var userId = roomId.slice('user_'.length);
+      return 'https://www.worksapis.com/v1.0/bots/' + botId + '/users/' + userId + '/messages';
+    }
+    return 'https://www.worksapis.com/v1.0/bots/' + botId + '/channels/' + roomId + '/messages';
+  }
+
+  /**
+   * 指定ルームへ任意のcontentを送信
+   * @param {string} roomId
+   * @param {Object} content
+   */
+  function _sendContent(roomId, content) {
     try {
-      var botId = props.getProperty('LINEWORKS_BOT_ID');
       var token = _getAccessToken();
-      var url;
-      if (roomId.indexOf('user_') === 0) {
-        // 1:1トーク用仮想ルーム → userId を取り出してユーザー宛API
-        var userId = roomId.slice('user_'.length);
-        url = 'https://www.worksapis.com/v1.0/bots/' + botId + '/users/' + userId + '/messages';
-      } else {
-        url = 'https://www.worksapis.com/v1.0/bots/' + botId + '/channels/' + roomId + '/messages';
-      }
-      UrlFetchApp.fetch(url, {
+      UrlFetchApp.fetch(_resolveMessageUrl(roomId), {
         method: 'post',
         headers: {
           Authorization: 'Bearer ' + token,
           'Content-Type': 'application/json'
         },
-        payload: JSON.stringify({
-          content: { type: 'text', text: message }
-        }),
+        payload: JSON.stringify({ content: content }),
         muteHttpExceptions: true,
         deadline: 10
       });
     } catch (e) {
       console.error('通知送信エラー roomId=' + roomId + ' : ' + e.message);
     }
+  }
+
+  /**
+   * 指定ルームにテキストメッセージを送信
+   * @param {string} roomId
+   * @param {string} message
+   */
+  function _postToRoom(roomId, message) {
+    _sendContent(roomId, { type: 'text', text: message });
   }
 
   /**
@@ -113,39 +126,64 @@ var NotificationService = (function () {
     });
   }
 
-  function sendStartToday(task) {
+  /**
+   * プロジェクトに紐づく全ルームへ「完了にする」ボタン付きで通知
+   * @param {Object} task
+   * @param {string} message
+   */
+  function _notifyProjectRoomsWithCompleteButton(task, message) {
+    var roomIds = ProjectRoomModel.getRoomIdsByProjectId(task.project_id);
+    var content = {
+      type: 'button_template',
+      contentText: message,
+      actions: [
+        { type: 'message', label: '完了にする', postback: 'complete_task:' + task.task_id }
+      ]
+    };
+    roomIds.forEach(function (roomId) {
+      _sendContent(roomId, content);
+    });
+  }
+
+  /**
+   * タスクが属するプロジェクト名を取得
+   * @param {Object} task
+   * @returns {string}
+   */
+  function _getProjectName(task) {
     var project = ProjectModel.getById(task.project_id);
-    var projectName = project ? project.project_name : task.project_id;
-    _notifyProjectRooms(task,
-      '[本日開始] ' + task.task_name + '（' + projectName + '）\n担当: ' + (task.assignee || '未設定')
+    return project ? project.project_name : task.project_id;
+  }
+
+  function sendStartToday(task) {
+    _notifyProjectRoomsWithCompleteButton(task,
+      '[本日開始] ' + task.task_name + '（' + _getProjectName(task) + '）\n担当: ' + (task.assignee || '未設定')
     );
   }
 
   function sendTaskComplete(task) {
-    var project = ProjectModel.getById(task.project_id);
-    var projectName = project ? project.project_name : task.project_id;
     _notifyProjectRooms(task,
-      '[完了] ' + task.task_name + '（' + projectName + '）\n担当: ' + (task.assignee || '未設定')
+      '[完了] ' + task.task_name + '（' + _getProjectName(task) + '）\n担当: ' + (task.assignee || '未設定')
     );
   }
 
   function sendDueToday(task) {
-    _notifyProjectRooms(task,
-      '[本日期限] ' + task.task_name + '\n担当: ' + (task.assignee || '未設定') +
+    _notifyProjectRoomsWithCompleteButton(task,
+      '[本日期限] ' + task.task_name + '（' + _getProjectName(task) + '）\n担当: ' + (task.assignee || '未設定') +
       '　期日: ' + task.due_date
     );
   }
 
   function sendDueSoon(task, daysLeft) {
-    _notifyProjectRooms(task,
-      '[期限' + daysLeft + '日前] ' + task.task_name + '\n担当: ' + (task.assignee || '未設定') +
+    _notifyProjectRoomsWithCompleteButton(task,
+      '[期限' + daysLeft + '日前] ' + task.task_name + '（' + _getProjectName(task) + '）\n担当: ' + (task.assignee || '未設定') +
       '　期日: ' + task.due_date
     );
   }
 
   function sendOverdue(task) {
-    _notifyProjectRooms(task,
-      '[期限超過] ' + task.task_name + '\n担当: ' + (task.assignee || '未設定') +
+    _notifyProjectRoomsWithCompleteButton(task,
+      '[期限超過] ' + task.task_name + '（' + _getProjectName(task) + '）\n担当: ' + (task.assignee || '未設定') +
       '　期日: ' + task.due_date
     );
   }
@@ -156,6 +194,7 @@ var NotificationService = (function () {
     sendDueToday: sendDueToday,
     sendDueSoon: sendDueSoon,
     sendOverdue: sendOverdue,
+    postToRoom: _postToRoom,
     getAccessToken: _getAccessToken
   };
 })();
