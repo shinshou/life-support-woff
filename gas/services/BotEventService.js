@@ -14,18 +14,19 @@ var BotEventService = (function () {
     var channelId = event.source && event.source.channelId || event.channelId;
     if (type === 'joined' && channelId) {
       _onJoined(channelId);
-    } else if (type === 'postback') {
-      _onPostback(event);
+    } else if (type === 'message') {
+      _onMessage(event);
     }
   }
 
   /**
-   * ボタンタップ時のPostbackイベント処理
+   * ボタンタップ時のメッセージイベント処理（content.postbackをチェック）
    * @param {Object} event
    */
-  function _onPostback(event) {
-    var data = event.data || '';
-    var match = /^complete_task:(.+)$/.exec(data);
+  function _onMessage(event) {
+    var content = event.content || {};
+    var postback = content.postback || '';
+    var match = /^complete_task:(.+)$/.exec(postback);
     if (!match) return;
     _completeTask(match[1], event.source || {});
   }

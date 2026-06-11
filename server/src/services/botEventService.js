@@ -11,14 +11,15 @@ async function handleEvent(event) {
   const channelId = (event.source && event.source.channelId) || event.channelId;
   if (type === 'joined' && channelId) {
     await _onJoined(channelId);
-  } else if (type === 'postback') {
-    await _onPostback(event);
+  } else if (type === 'message') {
+    await _onMessage(event);
   }
 }
 
-async function _onPostback(event) {
-  const data = event.data || '';
-  const match = /^complete_task:(.+)$/.exec(data);
+async function _onMessage(event) {
+  const content = event.content || {};
+  const postback = content.postback || '';
+  const match = /^complete_task:(.+)$/.exec(postback);
   if (!match) return;
   await _completeTask(match[1], event.source || {});
 }
