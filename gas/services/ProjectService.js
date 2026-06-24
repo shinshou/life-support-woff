@@ -16,10 +16,11 @@ var ProjectService = (function () {
 
   /**
    * プロジェクト作成
-   * roomIds に含まれるルームを紐付け、デフォルトタスクを展開する
+   * 作成元のルームを紐付け、デフォルトタスクを展開する
+   * （通知先ルームは作成後に「ルーム管理」画面から追加・変更する）
    *
    * @param {{project_name:string, project_type:string, start_date:string,
-   *          roomIds:string[], defaultTaskIds:string[]}} data
+   *          roomId:string, defaultTaskIds:string[]}} data
    * @returns {string} 新規 project_id
    */
   function createProject(data) {
@@ -29,14 +30,13 @@ var ProjectService = (function () {
       start_date: data.start_date
     });
 
-    var roomIds = data.roomIds || [];
-    roomIds.forEach(function (roomId) {
-      var room = RoomModel.getById(roomId);
+    if (data.roomId) {
+      var room = RoomModel.getById(data.roomId);
       if (!room) {
-        RoomModel.create({ room_id: roomId, room_name: roomId });
+        RoomModel.create({ room_id: data.roomId, room_name: data.roomId });
       }
-      ProjectRoomModel.create(projectId, roomId);
-    });
+      ProjectRoomModel.create(projectId, data.roomId);
+    }
 
     if (data.defaultTaskIds && data.defaultTaskIds.length > 0) {
       TaskService.createDefaultTasks(projectId, data.start_date, data.defaultTaskIds);

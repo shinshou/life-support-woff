@@ -17,10 +17,10 @@ async function createProject(data) {
     start_date: data.start_date,
   });
 
-  for (const roomId of (data.roomIds || [])) {
-    const room = await RoomModel.getById(roomId);
-    if (!room) await RoomModel.create({ room_id: roomId, room_name: roomId });
-    await ProjectRoomModel.create(projectId, roomId);
+  if (data.roomId) {
+    const room = await RoomModel.getById(data.roomId);
+    if (!room) await RoomModel.create({ room_id: data.roomId, room_name: data.roomId });
+    await ProjectRoomModel.create(projectId, data.roomId);
   }
 
   if (data.defaultTaskIds && data.defaultTaskIds.length > 0) {

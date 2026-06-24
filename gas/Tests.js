@@ -460,7 +460,7 @@ function T_projectService_createProject_linksRooms() {
     project_name: _TP + 'サービスプロジェクト',
     project_type: 'その他',
     start_date: '2024-01-01',
-    roomIds: [roomId],
+    roomId: roomId,
     defaultTaskIds: []
   });
 

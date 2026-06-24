@@ -174,26 +174,14 @@ var ProjectListView = (function () {
     }
 
     fab.onclick = function () {
-      var defaultTasks = Cache.has('defaultTasks') ? Cache.get('defaultTasks') : null;
-      var rooms = Cache.has('rooms') ? Cache.get('rooms') : null;
-
-      if (defaultTasks !== null && rooms !== null) {
-        App.navigate('project-create', { defaultTasks: defaultTasks, rooms: rooms });
+      if (Cache.has('defaultTasks')) {
+        App.navigate('project-create', { defaultTasks: Cache.get('defaultTasks') });
         return;
       }
 
-      var promises = [
-        defaultTasks !== null ? Promise.resolve(defaultTasks) : Api.get('getDefaultTasks', {}),
-        rooms !== null ? Promise.resolve(rooms) : Api.get('getRooms', {})
-      ];
-
-      Promise.all(promises).then(function (results) {
-        if (defaultTasks === null) Cache.set('defaultTasks', results[0] || []);
-        if (rooms === null) Cache.set('rooms', results[1] || []);
-        App.navigate('project-create', {
-          defaultTasks: results[0] || [],
-          rooms: results[1] || []
-        });
+      Api.get('getDefaultTasks', {}).then(function (tasks) {
+        Cache.set('defaultTasks', tasks || []);
+        App.navigate('project-create', { defaultTasks: tasks || [] });
       }).catch(function (err) {
         alert('データ取得に失敗しました: ' + err.message);
       });

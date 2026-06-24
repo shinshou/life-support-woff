@@ -7,10 +7,8 @@ var ProjectCreateView = (function () {
 
   function mount(params) {
     var defaultTasks = params.defaultTasks || [];
-    var rooms = params.rooms || [];
 
     _renderDefaultTaskList(defaultTasks);
-    _renderRoomList(rooms);
     _bindForm();
   }
 
@@ -32,31 +30,6 @@ var ProjectCreateView = (function () {
           '    <div class="check-item-label">' + _esc(t.task_name) + '</div>',
           '    <div class="check-item-sub">開始日 +' + Number(t.offset_days) + '日</div>',
           '  </div>',
-          '</label>'
-        ].join('');
-      }).join('') +
-      '</div>';
-    container.innerHTML = html;
-  }
-
-  function _renderRoomList(rooms) {
-    var container = document.getElementById('room-check-list');
-    if (!container) return;
-
-    var currentRoomId = App.getRoomId();
-
-    if (rooms.length === 0) {
-      // 現在のルームのみチェック
-      rooms = [{ room_id: currentRoomId, room_name: '現在のルーム' }];
-    }
-
-    var html = '<div class="check-list">' +
-      rooms.map(function (r) {
-        var checked = r.room_id === currentRoomId ? 'checked' : '';
-        return [
-          '<label class="check-item">',
-          '  <input type="checkbox" name="room" value="' + _esc(r.room_id) + '" ' + checked + '>',
-          '  <div class="check-item-label">' + _esc(r.room_name) + '</div>',
           '</label>'
         ].join('');
       }).join('') +
@@ -101,10 +74,6 @@ var ProjectCreateView = (function () {
       return;
     }
 
-    var roomIds = Array.from(form.querySelectorAll('input[name="room"]:checked'))
-      .map(function (c) { return c.value; });
-    if (roomIds.length === 0) roomIds = [App.getRoomId()];
-
     var defaultTaskIds = Array.from(form.querySelectorAll('input[name="default_task"]:checked'))
       .map(function (c) { return c.value; });
 
@@ -116,7 +85,6 @@ var ProjectCreateView = (function () {
       project_name: projectName,
       project_type: projectType,
       start_date: startDate,
-      roomIds: roomIds,
       defaultTaskIds: defaultTaskIds
     }).then(function (data) {
       return Api.get('getInitialData', { userId: App.getUserId(), roomId: App.getRoomId(), displayName: App.getDisplayName() });
