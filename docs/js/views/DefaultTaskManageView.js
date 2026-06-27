@@ -5,7 +5,7 @@
 
 var DefaultTaskManageView = (function () {
   var _defaultTasks = [];
-  var PROJECT_TYPES = ['研修', 'イベント', '業務改善', 'その他'];
+  var PROJECT_TYPES = ['入社手続き', '研修', 'イベント', '業務改善', 'その他'];
 
   function mount(params) {
     _defaultTasks = params.defaultTasks || [];
