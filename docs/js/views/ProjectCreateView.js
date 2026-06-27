@@ -5,11 +5,22 @@
 
 var ProjectCreateView = (function () {
 
-  function mount(params) {
-    var defaultTasks = params.defaultTasks || [];
+  var _allDefaultTasks = [];
 
-    _renderDefaultTaskList(defaultTasks);
+  function mount(params) {
+    _allDefaultTasks = params.defaultTasks || [];
+
+    _renderDefaultTaskList(_getFilteredTasks());
     _bindForm();
+  }
+
+  function _getFilteredTasks() {
+    var typeEl = document.getElementById('input-project-type');
+    var selected = typeEl ? typeEl.value : '';
+    if (!selected) return _allDefaultTasks;
+    return _allDefaultTasks.filter(function (t) {
+      return !t.project_type || t.project_type === selected;
+    });
   }
 
   function _renderDefaultTaskList(tasks) {
@@ -17,7 +28,7 @@ var ProjectCreateView = (function () {
     if (!container) return;
 
     if (tasks.length === 0) {
-      container.innerHTML = '<p style="color:#888;font-size:13px;">デフォルトタスクがありません</p>';
+      container.innerHTML = '<p style="color:#888;font-size:13px;">この種別のデフォルトタスクがありません</p>';
       return;
     }
 
@@ -38,6 +49,14 @@ var ProjectCreateView = (function () {
   }
 
   function _bindForm() {
+    // 種別変更でタスク一覧を絞り込む
+    var typeSelect = document.getElementById('input-project-type');
+    if (typeSelect) {
+      typeSelect.onchange = function () {
+        _renderDefaultTaskList(_getFilteredTasks());
+      };
+    }
+
     // 全選択・解除ボタン
     var selectAllBtn = document.getElementById('btn-select-all-tasks');
     if (selectAllBtn) {

@@ -233,8 +233,9 @@ var TaskEditView = (function () {
     }
 
     Api.post('saveAsDefaultTask', {
-      task_name:   taskName,
-      offset_days: offsetDays
+      task_name:    taskName,
+      offset_days:  offsetDays,
+      project_type: (_project && _project.project_type) || ''
     }).then(function () {
       Cache.invalidate('defaultTasks');
       alert('デフォルトタスクとして保存しました（工数: ' + offsetDays + '日）');

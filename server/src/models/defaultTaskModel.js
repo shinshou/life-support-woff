@@ -18,6 +18,7 @@ async function create(data) {
     default_task_id: id,
     task_name: data.task_name,
     offset_days: data.offset_days,
+    project_type: data.project_type || '',
   });
   return id;
 }

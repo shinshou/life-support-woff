@@ -9,7 +9,11 @@ var TaskFromDefaultView = (function () {
 
   function mount(params) {
     _project = params.project;
-    _defaultTasks = params.defaultTasks || [];
+    var allTasks = params.defaultTasks || [];
+    var type = _project && _project.project_type;
+    _defaultTasks = type
+      ? allTasks.filter(function (t) { return !t.project_type || t.project_type === type; })
+      : allTasks;
 
     var btn = document.getElementById('btn-submit-default-tasks');
     if (btn) { btn.disabled = false; btn.textContent = '追加する'; }

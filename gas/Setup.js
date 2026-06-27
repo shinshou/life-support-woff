@@ -107,9 +107,9 @@ var SHEET_DEFINITIONS = [
   },
   {
     name: 'デフォルトタスク',
-    headers: ['default_task_id', 'task_name', 'offset_days'],
+    headers: ['default_task_id', 'task_name', 'offset_days', 'project_type'],
     headerColor: '#6a1b9a',
-    colWidths: [200, 240, 100]
+    colWidths: [200, 240, 100, 120]
   },
   {
     name: 'ルーム',

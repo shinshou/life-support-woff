@@ -163,8 +163,15 @@ async function _handleWrite(ctx, res) {
           default_task_id: await DefaultTaskModel.create({
             task_name: ctx.task_name,
             offset_days: ctx.offset_days,
+            project_type: ctx.project_type || '',
           }),
         }));
+
+      case 'updateDefaultTask':
+        await AuthService.verifyAccess(ctx.userId, ctx.roomId);
+        await AuthService.requireCreatePermission(ctx.userId);
+        await DefaultTaskModel.update(ctx.defaultTaskId, { project_type: ctx.project_type || '' });
+        return res.json(ResponseUtil.success(null));
 
       case 'deleteDefaultTask':
         await AuthService.requireCreatePermission(ctx.userId);

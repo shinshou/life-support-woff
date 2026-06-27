@@ -136,9 +136,16 @@ var Router = (function () {
           return ResponseUtil.success({
             default_task_id: DefaultTaskModel.create({
               task_name: ctx.task_name,
-              offset_days: ctx.offset_days
+              offset_days: ctx.offset_days,
+              project_type: ctx.project_type || ''
             })
           });
+
+        case 'updateDefaultTask':
+          AuthService.verifyAccess(ctx.userId, ctx.roomId);
+          AuthService.requireCreatePermission(ctx.userId);
+          DefaultTaskModel.update(ctx.defaultTaskId, { project_type: ctx.project_type || '' });
+          return ResponseUtil.success(null);
 
         case 'deleteDefaultTask':
           AuthService.verifyAccess(ctx.userId, ctx.roomId);
