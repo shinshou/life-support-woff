@@ -18,7 +18,7 @@ async function handleEvent(event) {
 
 async function _onMessage(event) {
   const content = event.content || {};
-  const postback = content.postback || '';
+  const postback = content.postback || content.text || '';
   const match = /^complete_task:(.+)$/.exec(postback);
   if (!match) return;
   await _completeTask(match[1], event.source || {});

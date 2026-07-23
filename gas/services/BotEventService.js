@@ -25,7 +25,7 @@ var BotEventService = (function () {
    */
   function _onMessage(event) {
     var content = event.content || {};
-    var postback = content.postback || '';
+    var postback = content.postback || content.text || '';
     var match = /^complete_task:(.+)$/.exec(postback);
     if (!match) return;
     _completeTask(match[1], event.source || {});
